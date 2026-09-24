@@ -136,7 +136,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 <main class="wrap">
 
   <div class="stats" id="stats">
-    <div class="stat"><div class="val" id="s-units">1</div><div class="key">유닛</div></div>
+    <div class="stat"><div class="val" id="s-units">3</div><div class="key">유닛</div></div>
     <div class="stat"><div class="val" id="s-done">0</div><div class="key">완료 문제</div></div>
     <div class="stat"><div class="val" id="s-hint">-</div><div class="key">남은 힌트</div></div>
   </div>
@@ -168,7 +168,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
   </a>
 
   <!-- UNIT 02 (coming soon) -->
-  <div class="unit-card soon">
+  <a class="unit-card" href="unit02/index.html">
     <div class="card-top">
       <div class="badge">
         <span class="num">02</span>
@@ -177,14 +177,19 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
       <div class="info">
         <span class="topic">Dance</span>
         <span class="title">방송 댄스</span>
-        <span class="desc">준비 중이에요!</span>
+        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
       </div>
-      <span class="arrow"><span class="coming">곧 나와요</span></span>
+      <span class="arrow">›</span>
     </div>
-  </div>
+    <div class="card-bottom">
+      <span class="chip">📖 TTS 듣기</span>
+      <span class="chip orange">💡 힌트 3회</span>
+      <span class="chip pink" id="u02-prog">아직 안 풀었어요</span>
+    </div>
+  </a>
 
   <!-- UNIT 03 (coming soon) -->
-  <div class="unit-card soon">
+  <a class="unit-card" href="unit03/index.html">
     <div class="card-top">
       <div class="badge">
         <span class="num">03</span>
@@ -193,11 +198,16 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
       <div class="info">
         <span class="topic">Fashion & Design</span>
         <span class="title">패션 디자인</span>
-        <span class="desc">준비 중이에요!</span>
+        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
       </div>
-      <span class="arrow"><span class="coming">곧 나와요</span></span>
+      <span class="arrow">›</span>
     </div>
-  </div>
+    <div class="card-bottom">
+      <span class="chip">📖 TTS 듣기</span>
+      <span class="chip orange">💡 힌트 3회</span>
+      <span class="chip pink" id="u03-prog">아직 안 풀었어요</span>
+    </div>
+  </a>
 
   <!-- UNIT 04 (coming soon) -->
   <div class="unit-card soon">
@@ -240,6 +250,22 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
                           '아직 안 풀었어요';
 
     document.getElementById('s-done').textContent = correct || done;
+  // unit02
+  try {
+    const d2 = JSON.parse(localStorage.getItem('unit02')||'null');
+    if (d2) {
+      const c2=Object.keys(d2.locked||{}).length, do2=Object.keys(d2.state||{}).length;
+      document.getElementById('u02-prog').textContent = c2===12?'✅ 완료!':do2>0?`${do2} / 12 풀었어요`:'아직 안 풀었어요';
+    }
+  } catch(e) {}
+  // unit03
+  try {
+    const d3 = JSON.parse(localStorage.getItem('unit03')||'null');
+    if (d3) {
+      const c3=Object.keys(d3.locked||{}).length, do3=Object.keys(d3.state||{}).length;
+      document.getElementById('u03-prog').textContent = c3===12?'✅ 완료!':do3>0?`${do3} / 12 풀었어요`:'아직 안 풀었어요';
+    }
+  } catch(e) {}
     document.getElementById('s-hint').textContent = hintsLeft;
   } catch (e) {}
 })();
