@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>사랑이의 Reading Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FBF4F8; --paper: #FFFFFF; --ink: #2C1F33; --muted: #7A6A82;
+  --plum: #5B2A6B; --coral: #FF6F91; --coral-soft: #FFE1E8;
+  --mint: #3FB9A5; --mint-soft: #DDF5F0; --line: #E9DCE6;
+  --gold: #F4A623; --gold-soft: #FFF3D6;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1522; --paper: #2A1E30; --ink: #F4ECF5; --muted: #B9A9C2;
+    --plum: #D9B3E8; --coral: #FF8AA6; --coral-soft: #4A2634;
+    --mint: #6EDBC8; --mint-soft: #1F4038; --line: #43344A;
+    --gold: #FFD166; --gold-soft: #3D2E00;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+}
+.jua { font-family: "Jua", "Noto Sans KR", sans-serif; font-weight: 400; }
+
+/* ── hero ── */
+.hero {
+  background: linear-gradient(145deg, var(--plum) 0%, #8B3FA8 60%, var(--coral) 100%);
+  color: #fff;
+  padding: calc(env(safe-area-inset-top, 0px) + 48px) 24px 40px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23ffffff' fill-opacity='.08'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+.hero .emoji { font-size: 52px; line-height: 1; margin-bottom: 12px; display: block; }
+.hero h1 { font-family: "Jua"; font-size: 32px; letter-spacing: .02em; margin-bottom: 6px; }
+.hero p { font-size: 15px; opacity: .88; }
+.hero .sub { display: inline-block; background: rgba(255,255,255,.18); border-radius: 99px; padding: 3px 14px; font-size: 13px; margin-top: 10px; }
+
+/* ── wrap ── */
+.wrap { max-width: 640px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* ── section title ── */
+.section-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-head h2 { font-family: "Jua"; font-size: 20px; color: var(--plum); }
+.section-head .line { flex: 1; height: 1px; background: var(--line); }
+
+/* ── unit card ── */
+.unit-card {
+  display: block; text-decoration: none; color: inherit;
+  background: var(--paper); border: 1.5px solid var(--line);
+  border-radius: 22px; padding: 0; margin-bottom: 14px;
+  overflow: hidden; transition: transform .1s, box-shadow .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.unit-card:active { transform: scale(.98); }
+.unit-card .card-top {
+  display: flex; align-items: stretch; min-height: 96px;
+}
+.unit-card .badge {
+  width: 72px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; border-right: 1.5px solid var(--line);
+  padding: 12px 0;
+}
+.unit-card .badge .num { font-family: "Jua"; font-size: 26px; line-height: 1; color: var(--coral); }
+.unit-card .badge .label { font-size: 10px; color: var(--muted); letter-spacing: .05em; }
+.unit-card .info { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.unit-card .topic { font-size: 12px; color: var(--muted); }
+.unit-card .title { font-family: "Jua"; font-size: 18px; color: var(--ink); line-height: 1.2; }
+.unit-card .desc { font-size: 13px; color: var(--muted); }
+.unit-card .arrow { align-self: center; padding-right: 16px; color: var(--coral); font-size: 20px; }
+.unit-card .card-bottom {
+  border-top: 1.5px dashed var(--line);
+  display: flex; gap: 6px; padding: 10px 14px; flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--mint-soft); color: var(--mint);
+  border-radius: 99px; padding: 3px 10px; font-size: 12px;
+}
+.chip.orange { background: var(--gold-soft); color: var(--gold); }
+.chip.pink { background: var(--coral-soft); color: var(--coral); }
+
+/* ── coming soon card ── */
+.unit-card.soon { opacity: .55; cursor: default; pointer-events: none; }
+.unit-card.soon .badge .num { color: var(--muted); }
+.unit-card.soon .title { color: var(--muted); }
+.coming { font-family: "Jua"; font-size: 12px; background: var(--line); color: var(--muted); border-radius: 99px; padding: 3px 10px; }
+
+/* ── stats bar ── */
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 24px;
+}
+.stat {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 16px; padding: 14px 10px; text-align: center;
+}
+.stat .val { font-family: "Jua"; font-size: 26px; color: var(--coral); line-height: 1; }
+.stat .key { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── footer ── */
+footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bottom,0px)); color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="emoji">🎀</span>
+  <h1 class="jua">사랑이의 Reading Expert</h1>
+  <p>리센느를 사랑하는 사랑이를 위한 영어 독해 교재</p>
+  <span class="sub">Junior Reading Expert Level 2 수준</span>
+</header>
+
+<main class="wrap">
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="val" id="s-units">1</div><div class="key">유닛</div></div>
+    <div class="stat"><div class="val" id="s-done">0</div><div class="key">완료 문제</div></div>
+    <div class="stat"><div class="val" id="s-hint">-</div><div class="key">남은 힌트</div></div>
+  </div>
+
+  <div class="section-head">
+    <h2 class="jua">유닛 목록</h2>
+    <span class="line"></span>
+  </div>
+
+  <!-- UNIT 01 -->
+  <a class="unit-card" href="unit01/index.html">
+    <div class="card-top">
+      <div class="badge">
+        <span class="num">01</span>
+        <span class="label">UNIT</span>
+      </div>
+      <div class="info">
+        <span class="topic">K-pop</span>
+        <span class="title">RESCENE 리센느</span>
+        <span class="desc">Reading 1 · Reading 2 · 총 21문항</span>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="card-bottom" id="u01-bar">
+      <span class="chip">📖 TTS 듣기</span>
+      <span class="chip orange">💡 힌트 3회</span>
+      <span class="chip pink" id="u01-prog">0 / 21 풀었어요</span>
+    </div>
+  </a>
+
+  <!-- UNIT 02 (coming soon) -->
+  <div class="unit-card soon">
+    <div class="card-top">
+      <div class="badge">
+        <span class="num">02</span>
+        <span class="label">UNIT</span>
+      </div>
+      <div class="info">
+        <span class="topic">Dance</span>
+        <span class="title">방송 댄스</span>
+        <span class="desc">준비 중이에요!</span>
+      </div>
+      <span class="arrow"><span class="coming">곧 나와요</span></span>
+    </div>
+  </div>
+
+  <!-- UNIT 03 (coming soon) -->
+  <div class="unit-card soon">
+    <div class="card-top">
+      <div class="badge">
+        <span class="num">03</span>
+        <span class="label">UNIT</span>
+      </div>
+      <div class="info">
+        <span class="topic">Fashion & Design</span>
+        <span class="title">패션 디자인</span>
+        <span class="desc">준비 중이에요!</span>
+      </div>
+      <span class="arrow"><span class="coming">곧 나와요</span></span>
+    </div>
+  </div>
+
+  <!-- UNIT 04 (coming soon) -->
+  <div class="unit-card soon">
+    <div class="card-top">
+      <div class="badge">
+        <span class="num">04</span>
+        <span class="label">UNIT</span>
+      </div>
+      <div class="info">
+        <span class="topic">Accessories & Crafts</span>
+        <span class="title">액세서리 만들기</span>
+        <span class="desc">준비 중이에요!</span>
+      </div>
+      <span class="arrow"><span class="coming">곧 나와요</span></span>
+    </div>
+  </div>
+
+</main>
+
+<footer>사랑이 맞춤 영어 교재 🌸</footer>
+
+<script>
+// Unit 01 진행 상황을 localStorage에서 읽어 표시
+(function () {
+  try {
+    const raw = localStorage.getItem('unit01');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const state   = d.state   || {};
+    const locked  = d.locked  || {};
+    const hintsLeft = d.hintsLeft ?? 3;
+
+    const total = 21;
+    const done  = Object.keys(state).length;
+    const correct = Object.keys(locked).length;
+
+    document.getElementById('u01-prog').textContent =
+      correct === total ? '✅ 완료!' :
+      done > 0          ? `${done} / ${total} 풀었어요` :
+                          '아직 안 풀었어요';
+
+    document.getElementById('s-done').textContent = correct || done;
+    document.getElementById('s-hint').textContent = hintsLeft;
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
