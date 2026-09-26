@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>사랑이의 Reading Expert — Unit 04 액세서리 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF4F8; --paper:#FFFFFF; --ink:#2C1F33; --muted:#7A6A82;
+  --plum:#5B2A6B; --coral:#FF6F91; --coral-soft:#FFE1E8; --mint:#3FB9A5; --mint-soft:#DDF5F0;
+  --line:#E9DCE6; --wrong:#E24B4B; --wrong-soft:#FFE3E3;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1E1522; --paper:#2A1E30; --ink:#F4ECF5; --muted:#B9A9C2; --plum:#D9B3E8;
+    --coral:#FF8AA6; --coral-soft:#4A2634; --mint:#6EDBC8; --mint-soft:#1F4038;
+    --line:#43344A; --wrong:#FF7A7A; --wrong-soft:#4A2626;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1E1522; --paper:#2A1E30; --ink:#F4ECF5; --muted:#B9A9C2; --plum:#D9B3E8;
+  --coral:#FF8AA6; --coral-soft:#4A2634; --mint:#6EDBC8; --mint-soft:#1F4038;
+  --line:#43344A; --wrong:#FF7A7A; --wrong-soft:#4A2626;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;font-size:16px;line-height:1.65;}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 120px;}
+h1,h2,h3,.jua{font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400;letter-spacing:.01em;}
+
+/* hero */
+.hero{padding:40px 0 20px;text-align:left;}
+.hero .unit{color:var(--coral);font-family:"Jua";font-size:18px;margin:0;}
+.hero h1{font-size:40px;line-height:1.1;margin:4px 0 8px;color:var(--plum);}
+.hero p{margin:0;color:var(--muted);}
+.scentline{display:flex;gap:6px;margin-top:14px;}
+.scentline span{width:26px;height:8px;border-radius:99px;background:var(--line);}
+.scentline span.on{background:var(--coral);}
+
+/* sections */
+section{margin-top:26px;}
+h2{font-size:24px;color:var(--plum);margin:0 0 6px;}
+.tag{display:inline-block;background:var(--coral-soft);color:var(--coral);font-family:"Jua";padding:2px 12px;border-radius:99px;font-size:15px;margin-bottom:8px;}
+.passage{background:var(--paper);border-radius:20px;padding:20px 20px 16px;border:1px solid var(--line);}
+.passage h3{margin:0 0 10px;font-size:22px;color:var(--coral);}
+.passage p{margin:0 0 12px;font-size:16.5px;line-height:1.75;}
+.passage p:last-child{margin-bottom:0}
+.passage i{font-style:italic}
+.blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--plum);text-align:center;color:var(--plum);font-weight:700;}
+.circ{color:var(--coral);font-weight:700;margin-right:2px;}
+.note{font-size:13px;color:var(--muted);margin:8px 2px 0;}
+
+/* audio */
+.audio{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--mint-soft);}
+.audio .abtn{font-family:"Jua";font-size:16px;border:0;border-radius:99px;padding:8px 16px;background:var(--mint);color:#fff;cursor:pointer;}
+.audio .abtn.stop{background:transparent;color:var(--mint);border:2px solid var(--mint);padding:6px 14px;}
+.audio .abtn:disabled{opacity:.4}
+.audio .speed{margin-left:auto;display:flex;gap:4px;align-items:center;font-size:13px;color:var(--muted);}
+.audio .speed button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:99px;padding:3px 10px;cursor:pointer;}
+.audio .speed button.on{background:var(--plum);color:#fff;border-color:var(--plum);}
+.audio .warn{width:100%;font-size:13px;color:var(--wrong);display:none;}
+.sent{border-radius:4px;transition:background .15s;}
+.sent.now{background:var(--coral-soft);box-shadow:0 0 0 3px var(--coral-soft);}
+/* tables */
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px;}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top;}
+th{background:var(--mint-soft);color:var(--ink);font-weight:700;}
+.info b{display:inline-block;min-width:64px;}
+
+/* questions */
+.q{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:16px 16px 12px;margin-top:14px;}
+.q .stem{font-weight:700;margin:0 0 10px;font-size:16.5px;}
+.q .stem em{color:var(--coral);font-style:normal;}
+.q .num{display:inline-block;background:var(--plum);color:#fff;font-family:"Jua";width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;margin-right:8px;font-size:15px;}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.row{flex-direction:row;flex-wrap:wrap;}
+.opt{display:block;width:100%;text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:11px 14px;font:inherit;font-size:15.5px;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .08s;}
+.opts.row .opt{width:auto;flex:1 1 0;text-align:center;}
+.opt:active{transform:scale(.98)}
+.opt:focus-visible{outline:3px solid var(--mint);outline-offset:2px;}
+.opt.sel{border-color:var(--coral);background:var(--coral-soft);}
+.opt .k{display:inline-block;color:var(--coral);font-weight:700;margin-right:6px;}
+.graded .opt.correct{border-color:var(--mint);background:var(--mint-soft);}
+.graded .opt.sel.wrong{border-color:var(--wrong);background:var(--wrong-soft);}
+.tfitem{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);}
+.tfitem:first-child{border-top:0;padding-top:0}
+.tfitem .full{grid-column:1/-1}
+.tfitem .txt{font-size:15.5px;}
+.tfitem .pair{display:flex;gap:6px;}
+.tfitem .pair .opt{width:52px;text-align:center;padding:8px 0;}
+.explain{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--mint-soft);font-size:14px;line-height:1.55;}
+.explain.wrongbox{background:var(--wrong-soft);}
+.graded .explain{display:block;}
+.mark{display:none;font-family:"Jua";font-size:14px;margin-left:8px;}
+.graded .mark{display:inline;}
+.mark.ok{color:var(--mint)} .mark.no{color:var(--wrong)}
+
+/* fill blanks */
+.fill{line-height:2.1;font-size:15.5px;}
+.fill ul{margin:6px 0 0 0;padding-left:18px;}
+.fill li{margin:2px 0}
+select{font:inherit;font-size:15px;padding:4px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);min-width:110px;-webkit-appearance:none;appearance:none;}
+select.sel{border-color:var(--coral);background:var(--coral-soft);}
+select.graded.correct{border-color:var(--mint);background:var(--mint-soft);}
+select.graded.wrong{border-color:var(--wrong);background:var(--wrong-soft);}
+.ansmark{color:var(--wrong);font-family:"Jua";font-size:14px;margin-left:6px;}
+.bank{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;}
+.bank span{background:var(--paper);border:1px dashed var(--plum);color:var(--plum);border-radius:99px;padding:2px 12px;font-size:14px;}
+
+/* hints */
+.hintbtn{font:inherit;font-size:13px;font-family:"Jua";background:transparent;color:var(--plum);border:1.5px dashed var(--plum);border-radius:99px;padding:3px 12px;cursor:pointer;margin-top:8px;}
+.hintbtn:disabled{opacity:.4;cursor:default}
+.hintbtn.used{border-style:solid;background:var(--coral-soft);border-color:var(--coral);color:var(--coral);}
+.hintbox{display:none;margin-top:8px;padding:9px 12px;border-radius:12px;background:#FFF6D6;color:#5A4200;font-size:14px;line-height:1.5;}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .hintbox{background:#4A3C12;color:#FFE9A8} }
+:root[data-theme="dark"] .hintbox{background:#4A3C12;color:#FFE9A8}
+.hintbox.show{display:block}
+.fill li .hintbtn{margin:0 0 0 6px;padding:1px 9px;font-size:12px;}
+.fill li .hintbox{line-height:1.5;margin:2px 0 6px}
+.hintcount{font-family:"Jua";font-size:15px;color:var(--coral);white-space:nowrap;}
+.locked{opacity:.85}
+.result .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.result .attempt{font-size:13px;color:var(--muted);margin-top:8px}
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--line);}
+.bar .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.progress{flex:1;height:10px;background:var(--line);border-radius:99px;overflow:hidden;}
+.progress i{display:block;height:100%;width:0;background:var(--coral);border-radius:99px;transition:width .25s;}
+.ptext{font-family:"Jua";color:var(--muted);font-size:15px;white-space:nowrap;}
+.btn{font-family:"Jua";font-size:18px;background:var(--plum);color:#fff;border:0;border-radius:99px;padding:10px 22px;cursor:pointer;}
+:root[data-theme="dark"] .btn, .btn.dark{color:#1E1522}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#1E1522} }
+.btn:disabled{opacity:.45}
+.btn.ghost{background:transparent;color:var(--plum);border:2px solid var(--plum);}
+
+/* result */
+.result{display:none;margin-top:30px;background:var(--paper);border:2px solid var(--coral);border-radius:24px;padding:24px 20px;text-align:center;}
+.result.show{display:block}
+.result .score{font-family:"Jua";font-size:64px;color:var(--coral);line-height:1;}
+.result .of{font-family:"Jua";font-size:22px;color:var(--muted);}
+.result h2{margin-top:6px}
+.result .msg{margin:6px 0 16px}
+.result .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin:14px 0 18px;}
+.result .grid span{font-family:"Jua";font-size:13px;padding:6px 0;border-radius:10px;background:var(--mint-soft);color:var(--mint);}
+.result .grid span.no{background:var(--wrong-soft);color:var(--wrong);}
+details{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:10px 16px;}
+summary{font-family:"Jua";color:var(--plum);cursor:pointer;font-size:17px;}
+details p{font-size:15px;color:var(--ink);}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="unit">UNIT 04 · Accessories</p>
+  <h1>사랑이의<br>Reading Expert</h1>
+  <p>▶ 듣기로 본문을 들으면서 읽고, 답을 <b>터치</b>해서 고른 다음, 맨 아래 <b>채점하기</b>를 눌러 봐! 막히면 💡 힌트를 쓸 수 있어 (한 유닛에 <b>3번</b>). 총 <b>12문항</b>!</p>
+  <div class="scentline" id="scent"><span></span><span></span><span></span><span></span><span></span></div>
+</header>
+
+<section>
+  <span class="tag">Before Reading</span>
+  <p style="margin:0">Have you ever made or worn a handmade accessory? What was it like?</p>
+</section>
+
+<!-- READING 1 -->
+<section>
+  <span class="tag">Reading 1</span>
+  <div class="passage">
+    <h3>Making Your Own Accessories</h3>
+    <div class="audio" data-target="p1"><button class="abtn play">▶ 듣기</button><button class="abtn stop" disabled>■ 정지</button>
+      <span class="speed">속도 <button data-rate="0.75">느리게</button><button data-rate="0.9" class="on">보통</button><button data-rate="1.05">빠르게</button></span>
+      <span class="warn">이 브라우저에서는 음성 읽기를 지원하지 않아요. 크롬이나 사파리로 열어 봐.</span></div>
+    <div id="p1">
+    <p>Do you like wearing bracelets, earrings, or necklaces? Making your own accessories is a popular hobby among young people. All you need are some simple materials like beads, wire, and thread.</p>
+    <p>The first step is to choose your design. <span class="circ">ⓐ</span>You can start with something simple, like a bracelet with colorful beads. <span class="circ">ⓑ</span>Many people search for ideas on YouTube or social media. <span class="circ">ⓒ</span>Professional jewelry costs a lot of money in stores. <span class="circ">ⓓ</span>Once you have your design, gather your materials and start creating.</p>
+    <p>Handmade accessories are special because they are one of a kind. No one else will have exactly the same piece as you. You can also make accessories as gifts for your friends and family. Seeing someone wear something you made feels wonderful.</p>
+    <p>Some young people even sell their handmade accessories online. <span class="blank">(A)</span>, a girl named Mia started making bracelets just for fun, but her friends loved them so much that she began selling them. Making accessories can even turn into a small business!</p>
+    </div>
+  </div>
+  <div id="r1q"></div>
+</section>
+
+<!-- READING 2 -->
+<section>
+  <span class="tag">Reading 2</span>
+  <div class="passage">
+    <h3>🧵 Bead &amp; Craft Supply Store — "Sarang Craft"</h3>
+    <div class="audio" data-target="p2"><button class="abtn play">▶ 듣기</button><button class="abtn stop" disabled>■ 정지</button>
+      <span class="speed">속도 <button data-rate="0.75">느리게</button><button data-rate="0.9" class="on">보통</button><button data-rate="1.05">빠르게</button></span>
+      <span class="warn">이 브라우저에서는 음성 읽기를 지원하지 않아요. 크롬이나 사파리로 열어 봐.</span></div>
+    <div id="p2">
+    <p>Now open! Find everything you need to make your own accessories.</p>
+    <p class="info"><b>Location:</b> 3F, Star Mall, Seoul<br><b>Hours:</b> Mon – Sat, 10:00 a.m. – 8:00 p.m.<br><b>Closed:</b> Sundays</p>
+    <table><tr><th>Product</th><th>Price</th></tr>
+      <tr><td>Beads (20+ colors)</td><td>From &#8361;2,000 per pack</td></tr>
+      <tr><td>Wire sets</td><td>&#8361;5,000 per roll</td></tr>
+      <tr><td>Thread kits</td><td>&#8361;3,000 per set</td></tr>
+      <tr><td>Starter kit (beads + wire + tools)</td><td>&#8361;15,000</td></tr></table>
+    <table><tr><th>Special Events</th><th>Date</th></tr>
+      <tr><td>Free bracelet-making class (ages 8+, registration required)</td><td>Sat, Nov 8</td></tr>
+      <tr><td>20% off all bead products</td><td>Sat, Nov 15</td></tr></table>
+    <p><b>Custom orders available!</b> Contact us at sarangcraft@shop.com</p>
+    </div>
+    
+  </div>
+  <div id="r2q"></div>
+</section>
+
+<!-- UNIT REVIEW -->
+<section>
+  <span class="tag">Unit Review</span>
+  <h2>A. 알맞은 단어를 골라 빈칸을 채워 보자</h2>
+    <div class="q fill" id="fillA">
+    <div class="bank"><span>design</span><span>wire</span><span>unique</span></div>
+    <b>How to start</b>
+    <ul>
+      <li>The first step is to choose your <select data-id="A2" data-ans="design"></select><button class="hintbtn" data-hint="A2">💡</button><div class="hintbox" data-hintbox="A2"></div>.</li>
+    </ul>
+    <b>What to use</b>
+    <ul>
+      <li>You can use beads, <select data-id="A3" data-ans="wire"></select><button class="hintbtn" data-hint="A3">💡</button><div class="hintbox" data-hintbox="A3"></div>, and thread as materials.</li>
+    </ul>
+    <b>Why handmade is special</b>
+    <ul><li>Handmade accessories are <select data-id="A5" data-ans="unique"></select><button class="hintbtn" data-hint="A5">💡</button><div class="hintbox" data-hintbox="A5"></div> — no two are the same.</li></ul>
+  </div>
+
+  <h2 style="margin-top:20px">B. 뜻에 맞는 단어를 골라 보자</h2>
+    <div class="q fill" id="fillB">
+    <div class="bank"><span>thread</span><span>gather</span><span>bracelet</span></div>
+    <ul style="list-style:none;padding:0">
+      <li>1&nbsp; a thin string used to make jewelry: <select data-id="B1" data-ans="thread"></select><button class="hintbtn" data-hint="B1">💡</button><div class="hintbox" data-hintbox="B1"></div></li>
+      <li>2&nbsp; to collect things together in one place: <select data-id="B3" data-ans="gather"></select><button class="hintbtn" data-hint="B3">💡</button><div class="hintbox" data-hintbox="B3"></div></li>
+      <li>3&nbsp; a piece of jewelry worn around the wrist: <select data-id="B4" data-ans="bracelet"></select><button class="hintbtn" data-hint="B4">💡</button><div class="hintbox" data-hintbox="B4"></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- RESULT -->
+<div class="result" id="result">
+  <div class="score"><span id="scoreNum">0</span><span class="of">/12</span></div>
+  <h2 id="scoreTitle">수고했어!</h2>
+  <p class="msg" id="scoreMsg"></p>
+  <div class="grid" id="grid"></div>
+  <p class="note">초록 = 맞음, 빨강 = 틀림. 위로 올라가면 문제마다 정답과 해설이 보여.</p>
+  <div class="btns"><button class="btn" id="retryWrong">틀린 문제 다시 풀기</button><button class="btn ghost" id="retry">처음부터</button></div>
+  <p class="attempt" id="attempt"></p>
+</div>
+
+<details>
+  <summary>📖 단어장 (Word List)</summary>
+  <table>
+    <tr><td>bead</td><td>구슬</td><td>wire</td><td>철사, 와이어</td></tr>
+    <tr><td>thread</td><td>실</td><td>bracelet</td><td>팔찌</td></tr>
+    <tr><td>gather</td><td>모으다</td><td>unique</td><td>독특한, 유일한</td></tr>
+    <tr><td>design</td><td>디자인</td><td>handmade</td><td>손으로 만든</td></tr>
+    <tr><td>material</td><td>재료</td><td>custom</td><td>맞춤 제작의</td></tr>
+  </table>
+</details>
+
+<details>
+  <summary>📝 Reading 1 한국어 해석</summary>
+  <p>팔찌, 귀걸이, 목걸이 착용하는 걸 좋아하나요? 직접 액세서리를 만드는 것은 젊은 사람들 사이에서 인기 있는 취미입니다. 구슬, 철사, 실 같은 간단한 재료만 있으면 돼요.</p>
+  <p>첫 번째 단계는 디자인을 정하는 것입니다. ⓐ 알록달록한 구슬로 만든 팔찌처럼 간단한 것부터 시작할 수 있어요. ⓑ 많은 사람들이 유튜브나 소셜 미디어에서 아이디어를 찾습니다. ⓒ 매장에서 파는 전문 주얼리는 가격이 비쌉니다. ⓓ 디자인을 정했으면 재료를 모아서 만들기 시작하세요.</p>
+  <p>수제 액세서리는 세상에 하나뿐이라 특별해요. 다른 사람은 나와 똑같은 것을 가질 수 없죠. 친구나 가족에게 선물로 만들어 줄 수도 있어요. 내가 만든 것을 누군가가 착용하는 걸 보면 정말 뿌듯합니다.</p>
+  <p>일부 젊은이들은 수제 액세서리를 온라인으로 팔기도 해요. 예를 들어, Mia라는 소녀는 재미로 팔찌를 만들기 시작했는데, 친구들이 너무 좋아해서 판매까지 하게 됐어요. 액세서리 만들기가 작은 사업이 될 수도 있답니다!</p>
+</details>
+
+</div>
+
+<div class="bar"><div class="in">
+  <div class="progress"><i id="pbar"></i></div>
+  <span class="ptext" id="ptext">0 / 21</span>
+  <span class="hintcount" id="hintcount">💡 3</span>
+  <button class="btn" id="grade">채점하기</button>
+</div></div>
+
+<script>
+const MC = [
+
+ {id:'R1Q1', stem:'What is the passage mainly about?', ans:2,
+  opts:['how to buy accessories online','making your own accessories','how professional jewelry is made','the history of accessories'],
+  why:'글 전체가 직접 액세서리를 만드는 방법과 그 즐거움에 대한 이야기야.',
+  hint:'각 문단의 주제를 생각해 봐. 어떤 행동이 계속 나오지?'},
+ {id:'R1Q3', stem:'What is the best choice for blank (A)?', ans:3, opts:['However','As a result','For example','On the other hand'],
+  why:'"일부는 온라인으로 팔기도 한다" → "Mia의 이야기"는 그 구체적인 예시야. For example.',
+  hint:'앞 문장: 일부 젊은이들이 온라인으로 팔기도 한다. 뒤 문장이 그 "예시"야.'},
+ {id:'R1Q5', stem:'What is special about handmade accessories, according to the passage?', ans:2,
+  opts:['They are cheaper than store accessories.','Each one is unique and one of a kind.','They are always made of beads only.','They can only be worn by the maker.'],
+  why:'3문단: "they are one of a kind. No one else will have exactly the same piece."',
+  hint:'3문단 첫 두 문장을 읽어 봐.'},
+
+];
+const TF = {id:'R1Q6', stem:'Write T if the statement is true and F if it\'s false.', items:[
+ {id:'R1Q6a', txt:'(1) You can use wire and thread to make accessories.', ans:'T', why:'1문단에 "beads, wire, and thread"라고 나와 있어!', hint:'1문단 마지막 문장을 봐.'},
+ {id:'R1Q6c', txt:'(2) Sarang Craft is open on Sundays.', ans:'F', why:'"Closed: Sundays"라고 안내문에 나와 있어.', hint:'Reading 2의 Hours/Closed 부분을 확인해 봐.'},
+]};
+const R2 = {id:'R2Q1', stem:"What is NOT true about Sarang Craft?", ans:2,
+  opts:['The store is on the third floor of a mall.','The store is open every day of the week.','Starter kits include beads, wire, and tools.','A free bracelet-making class will be held.','You can order custom accessories from the store.'],
+  why:'"Closed: Sundays"이므로 매일 열지 않아. 2번이 틀린 내용이야.',
+  hint:'영업 시간(Hours)과 휴무일(Closed) 부분을 확인해 봐.'};
+const FILL_HINT = {A2:'첫 번째 단계: 먼저 무엇을 만들지 정해야 해 → d____', A3:'구슬과 함께 나온 재료, 철사 → 첫 글자 w', A5:'다른 것과 똑같지 않은, 세상에 하나뿐인 → u____',
+  B1:'실, 꿰매거나 꿸 때 쓰는 것 → 첫 글자 t', B3:'재료를 한데 모으다 → 첫 글자 g', B4:'손목에 차는 장신구 → 첫 글자 b'};
+const state = {};       // id -> chosen
+let locked = {};        // id -> true (맞아서 잠긴 문제)
+let hintsLeft = 3, hintsUsed = {}, attempts = 0;
+const circ = ['①','②','③','④','⑤'];
+let qn = 0;
+
+function hintUI(id){ return `<button class="hintbtn" data-hint="${id}">💡 힌트</button><div class="hintbox" data-hintbox="${id}"></div>`; }
+function mcHTML(q){
+  qn++;
+  const opts = q.opts.map((o,i)=>`<button class="opt" data-q="${q.id}" data-v="${i+1}"><span class="k">${circ[i]}</span>${o}</button>`).join('');
+  return `<div class="q" id="q-${q.id}" data-qid="${q.id}"><p class="stem"><span class="num">${qn}</span>${q.stem.replace('NOT','<em>NOT</em>')}<span class="mark"></span></p>
+  <div class="opts ${q.row?'row':''}">${opts}</div>${hintUI(q.id)}<div class="explain">${q.why}</div></div>`;
+}
+function tfHTML(t){
+  qn++;
+  const rows = t.items.map(it=>`<div class="tfitem" id="q-${it.id}" data-qid="${it.id}"><div class="txt">${it.txt}<span class="mark"></span></div>
+   <div class="pair"><button class="opt" data-q="${it.id}" data-v="T">T</button><button class="opt" data-q="${it.id}" data-v="F">F</button></div>
+   <div class="full">${hintUI(it.id)}<div class="explain">${it.why}</div></div></div>`).join('');
+  return `<div class="q" id="q-${t.id}"><p class="stem"><span class="num">${qn}</span>${t.stem}</p><div class="tf">${rows}</div></div>`;
+}
+document.getElementById('r1q').innerHTML = MC.map(mcHTML).join('') + tfHTML(TF);
+document.getElementById('r2q').innerHTML = mcHTML(R2);
+
+const HINTS = {};
+[...MC, R2].forEach(q=>HINTS[q.id]=q.hint); TF.items.forEach(i=>HINTS[i.id]=i.hint); Object.assign(HINTS, FILL_HINT);
+
+// selects
+document.querySelectorAll('select').forEach(s=>{
+  const bank = [...s.closest('.q').querySelectorAll('.bank span')].map(b=>b.textContent);
+  s.innerHTML = '<option value="">선택</option>' + bank.map(w=>`<option>${w}</option>`).join('');
+  s.addEventListener('change',()=>{ state[s.dataset.id]=s.value; s.classList.toggle('sel',!!s.value); update(); });
+});
+
+const ALL = [...MC.map(q=>q.id), ...TF.items.map(i=>i.id), R2.id, ...[...document.querySelectorAll('select')].map(s=>s.dataset.id)];
+const TOTAL = ALL.length;
+const isGraded = id => !!locked[id] || document.body.classList.contains('graded');
+
+document.body.addEventListener('click',e=>{
+  const h = e.target.closest('.hintbtn'); if(h){ useHint(h.dataset.hint); return; }
+  const b = e.target.closest('.opt'); if(!b) return;
+  const q = b.dataset.q; if(isGraded(q)) return;
+  state[q] = b.dataset.v;
+  document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(o=>o.classList.toggle('sel', o===b));
+  update();
+});
+
+function useHint(id){
+  const box = document.querySelector(`.hintbox[data-hintbox="${id}"]`);
+  const btn = document.querySelector(`.hintbtn[data-hint="${id}"]`);
+  if(hintsUsed[id]){ box.classList.toggle('show'); return; }
+  if(hintsLeft<=0){ alert('힌트를 다 썼어! 본문을 다시 한번 천천히 읽어 보자.'); return; }
+  if(!confirm(`힌트를 볼까? (남은 힌트 ${hintsLeft}개 → ${hintsLeft-1}개)`)) return;
+  hintsLeft--; hintsUsed[id]=true;
+  box.textContent = HINTS[id]; box.classList.add('show'); btn.classList.add('used');
+  update();
+}
+function renderHints(){
+  document.getElementById('hintcount').textContent = `💡 ${hintsLeft}`;
+  document.querySelectorAll('.hintbtn').forEach(b=>{
+    const id=b.dataset.hint;
+    if(hintsUsed[id]){ b.classList.add('used'); b.disabled=false; const box=document.querySelector(`.hintbox[data-hintbox="${id}"]`); box.textContent=HINTS[id]; box.classList.add('show'); }
+    else b.disabled = hintsLeft<=0;
+  });
+}
+function update(){
+  const done = ALL.filter(id=>state[id]).length;
+  document.getElementById('pbar').style.width = (done/TOTAL*100)+'%';
+  document.getElementById('ptext').textContent = `${done} / ${TOTAL}`;
+  document.querySelectorAll('#scent span').forEach((s,i)=>s.classList.toggle('on', done/TOTAL*5 > i));
+  renderHints();
+  try{ localStorage.setItem('unit04', JSON.stringify({state, locked, hintsLeft, hintsUsed, attempts})); }catch(e){}
+}
+
+function restore(){
+  let saved=null; try{ saved = JSON.parse(localStorage.getItem('unit04')||'null'); }catch(e){}
+  if(!saved || !saved.state) return;
+  Object.assign(state, saved.state); locked = saved.locked||{}; hintsLeft = saved.hintsLeft??3; hintsUsed = saved.hintsUsed||{}; attempts = saved.attempts||0;
+  for(const [q,v] of Object.entries(state)){
+    const btn = document.querySelector(`.opt[data-q="${q}"][data-v="${v}"]`);
+    if(btn) btn.classList.add('sel');
+    const sel = document.querySelector(`select[data-id="${q}"]`);
+    if(sel){ sel.value=v; sel.classList.add('sel'); }
+  }
+  // 맞힌 문제는 잠근 상태로 다시 표시
+  Object.keys(locked).forEach(id=>markQuestion(id,true));
+  update();
+}
+
+function markQuestion(id, ok){
+  const box = document.getElementById('q-'+id);
+  if(box){ // MC or TF item
+    box.classList.add('graded'); box.classList.toggle('locked', ok);
+    const ans = ([...MC,R2].find(q=>q.id===id)||{}).ans ?? (TF.items.find(i=>i.id===id)||{}).ans;
+    box.querySelectorAll('.opt').forEach(o=>{ o.classList.remove('correct','wrong'); if(o.dataset.v==String(ans)) o.classList.add('correct'); else if(o.classList.contains('sel')) o.classList.add('wrong'); });
+    const m = box.querySelector('.mark'); m.textContent = ok?'정답!':'아쉽다'; m.className='mark '+(ok?'ok':'no');
+    box.querySelector('.explain').classList.toggle('wrongbox',!ok);
+  } else { // select
+    const s = document.querySelector(`select[data-id="${id}"]`);
+    s.classList.remove('correct','wrong'); s.classList.add('graded', ok?'correct':'wrong'); s.disabled=true;
+    if(!ok){ const t=document.createElement('span'); t.className='ansmark'; t.textContent=`정답: ${s.dataset.ans}`; s.after(t); }
+  }
+  if(ok) locked[id]=true;
+}
+function unmarkQuestion(id){
+  const box = document.getElementById('q-'+id);
+  if(box){
+    box.classList.remove('graded','locked');
+    box.querySelectorAll('.opt').forEach(o=>o.classList.remove('correct','wrong','sel'));
+    box.querySelector('.mark').textContent='';
+  } else {
+    const s = document.querySelector(`select[data-id="${id}"]`);
+    s.classList.remove('graded','correct','wrong','sel'); s.disabled=false; s.value='';
+    const t = s.nextElementSibling; if(t && t.classList.contains('ansmark')) t.remove();
+  }
+  delete state[id];
+}
+function correctOf(id){
+  const mc = [...MC,R2].find(q=>q.id===id); if(mc) return String(mc.ans);
+  const tf = TF.items.find(i=>i.id===id); if(tf) return tf.ans;
+  return document.querySelector(`select[data-id="${id}"]`).dataset.ans;
+}
+
+function grade(){
+  const todo = ALL.filter(id=>!locked[id]);
+  const done = todo.filter(id=>state[id]).length;
+  if(done < todo.length && !confirm(`아직 ${todo.length-done}문제를 안 풀었어. 그래도 채점할까?`)) return;
+  attempts++;
+  todo.forEach(id=>markQuestion(id, state[id]===correctOf(id)));
+  document.body.classList.add('graded');
+  showResult();
+  update();
+}
+function showResult(){
+  const score = ALL.filter(id=>locked[id]).length, wrong = TOTAL-score, pct=score/TOTAL;
+  const r = document.getElementById('result'); r.classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreTitle').textContent = pct===1?'완벽해! 🎉':pct>=.8?'정말 잘했어! 🌟':pct>=.6?'좋아, 조금만 더! 💪':'다시 한번 읽어 보자 📖';
+  document.getElementById('scoreMsg').textContent = `${TOTAL}문제 중 ${score}문제 정답 (${Math.round(pct*100)}점)`;
+  document.getElementById('grid').innerHTML = ALL.map((id,i)=>`<span class="${locked[id]?'':'no'}">${i+1}</span>`).join('');
+  document.getElementById('retryWrong').style.display = wrong? '' : 'none';
+  document.getElementById('retryWrong').textContent = `틀린 ${wrong}문제 다시 풀기`;
+  document.getElementById('attempt').textContent = attempts>1 ? `${attempts}번째 채점 · 힌트 ${3-hintsLeft}개 사용` : `힌트 ${3-hintsLeft}개 사용`;
+  document.getElementById('grade').disabled = true;
+  r.scrollIntoView({behavior:'smooth'});
+}
+function retryWrong(){
+  const wrongIds = ALL.filter(id=>!locked[id]);
+  wrongIds.forEach(unmarkQuestion);
+  document.body.classList.remove('graded');
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('grade').disabled = false;
+  document.getElementById('grade').textContent = '다시 채점하기';
+  update();
+  const first = document.getElementById('q-'+wrongIds[0]) || document.querySelector(`select[data-id="${wrongIds[0]}"]`);
+  if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+}
+document.getElementById('grade').addEventListener('click', grade);
+document.getElementById('retryWrong').addEventListener('click', retryWrong);
+document.getElementById('retry').addEventListener('click', ()=>{ if(!confirm('힌트와 답을 모두 지우고 처음부터 풀까?')) return; try{localStorage.removeItem('unit04')}catch(e){} location.reload(); });
+restore();
+if(Object.keys(locked).length && Object.keys(locked).length<TOTAL){ document.getElementById('grade').textContent='다시 채점하기'; }
+else if(Object.keys(locked).length===TOTAL){ document.body.classList.add('graded'); showResult(); }
+
+/* ---------- 음성 읽기 (Web Speech API) ---------- */
+(function(){
+  const synth = window.speechSynthesis;
+  const bars = document.querySelectorAll('.audio');
+  if(!synth || !window.SpeechSynthesisUtterance){
+    bars.forEach(b=>{ b.querySelector('.warn').style.display='block'; b.querySelector('.play').disabled=true; });
+    return;
+  }
+  // 문장 단위로 쪼개서 span으로 감싸기 (문장 하이라이트용)
+  function wrapSentences(root){
+    root.querySelectorAll('p, td').forEach(el=>{
+      if(el.classList.contains('note')) return;
+      const txt = el.innerHTML;
+      if(el.tagName==='P' && el.classList.contains('info')){ // 줄바꿈 단위
+        el.innerHTML = txt.split('<br>').map(l=>`<span class="sent">${l}</span>`).join('<br>');
+        return;
+      }
+      const parts = txt.split(/(?<=[.!?]["”]?)\s+(?=[A-Z"“(ⓐⓑⓒⓓ<])/);
+      el.innerHTML = parts.map(pt=>`<span class="sent">${pt}</span>`).join(' ');
+    });
+  }
+  ['p1','p2'].forEach(id=>wrapSentences(document.getElementById(id)));
+
+  let current=null, rate=0.9, stopped=false;
+  function cleanText(el){
+    return el.textContent.replace(/[ⓐⓑⓒⓓ]/g,'').replace(/\(A\)/,'blank A').replace(/₩66,000/,'66,000 won').replace(/·/g,'').replace(/\s+/g,' ').trim();
+  }
+  function pickVoice(){
+    const vs = synth.getVoices();
+    return vs.find(v=>/^en[-_]US/i.test(v.lang) && /female|samantha|aria|jenny|zira|google us/i.test(v.name))
+        || vs.find(v=>/^en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
+  }
+  function stop(){
+    stopped=true; synth.cancel();
+    document.querySelectorAll('.sent.now').forEach(s=>s.classList.remove('now'));
+    bars.forEach(b=>{ b.querySelector('.play').disabled=false; b.querySelector('.play').textContent='▶ 듣기'; b.querySelector('.stop').disabled=true; });
+    current=null;
+  }
+  function play(bar){
+    stop(); stopped=false; current=bar;
+    const sents = [...document.getElementById(bar.dataset.target).querySelectorAll('.sent')].filter(s=>cleanText(s).length>1);
+    bar.querySelector('.play').disabled=true; bar.querySelector('.play').textContent='🔊 읽는 중';
+    bar.querySelector('.stop').disabled=false;
+    const voice = pickVoice();
+    let i=0;
+    const next=()=>{
+      if(stopped || i>=sents.length){ if(!stopped) stop(); return; }
+      const el = sents[i++];
+      document.querySelectorAll('.sent.now').forEach(s=>s.classList.remove('now'));
+      el.classList.add('now');
+      el.scrollIntoView({block:'center', behavior:'smooth'});
+      const u = new SpeechSynthesisUtterance(cleanText(el));
+      u.lang='en-US'; u.rate=rate; if(voice) u.voice=voice;
+      u.onend = next; u.onerror = next;
+      synth.speak(u);
+    };
+    next();
+  }
+  bars.forEach(bar=>{
+    bar.querySelector('.play').addEventListener('click',()=>play(bar));
+    bar.querySelector('.stop').addEventListener('click',stop);
+    bar.querySelectorAll('.speed button').forEach(b=>b.addEventListener('click',()=>{
+      rate=parseFloat(b.dataset.rate);
+      document.querySelectorAll('.speed button').forEach(x=>x.classList.toggle('on', parseFloat(x.dataset.rate)===rate));
+      if(current) play(current);
+    }));
+  });
+  // 문장을 직접 터치하면 그 문장만 읽어 주기
+  document.body.addEventListener('click',e=>{
+    const s = e.target.closest('.sent'); if(!s || e.target.closest('.audio')) return;
+    stop(); stopped=false;
+    document.querySelectorAll('.sent.now').forEach(x=>x.classList.remove('now')); s.classList.add('now');
+    const u = new SpeechSynthesisUtterance(cleanText(s)); u.lang='en-US'; u.rate=rate; const v=pickVoice(); if(v) u.voice=v;
+    u.onend=()=>s.classList.remove('now'); synth.speak(u);
+  });
+  if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>{};
+  window.addEventListener('pagehide',()=>synth.cancel());
+})();
+document.getElementById('retry').addEventListener('click', ()=>{ try{localStorage.removeItem('unit04')}catch(e){} location.reload(); });
+</script>
+</body>
+</html>
