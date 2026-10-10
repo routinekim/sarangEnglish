@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>단어장 — 사랑이의 Reading Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FBF4F8; --paper: #FFFFFF; --ink: #2C1F33; --muted: #7A6A82;
+  --plum: #5B2A6B; --coral: #FF6F91; --coral-soft: #FFE1E8;
+  --mint: #3FB9A5; --mint-soft: #DDF5F0; --line: #E9DCE6;
+  --gold: #F4A623; --gold-soft: #FFF3D6;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1522; --paper: #2A1E30; --ink: #F4ECF5; --muted: #B9A9C2;
+    --plum: #D9B3E8; --coral: #FF8AA6; --coral-soft: #4A2634;
+    --mint: #6EDBC8; --mint-soft: #1F4038; --line: #43344A;
+    --gold: #FFD166; --gold-soft: #3D2E00;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+}
+.jua { font-family: "Jua", "Noto Sans KR", sans-serif; font-weight: 400; }
+
+.hero {
+  background: linear-gradient(145deg, var(--plum) 0%, #8B3FA8 60%, var(--coral) 100%);
+  color: #fff;
+  padding: calc(env(safe-area-inset-top, 0px) + 40px) 24px 36px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero .emoji { font-size: 44px; line-height: 1; margin-bottom: 10px; display: block; }
+.hero h1 { font-family: "Jua"; font-size: 26px; letter-spacing: .02em; margin-bottom: 6px; }
+.hero p { font-size: 14px; opacity: .88; }
+.back { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); left: 16px; color: #fff; text-decoration: none; font-size: 14px; background: rgba(255,255,255,.18); border-radius: 99px; padding: 6px 14px; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+
+.section-head { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+.section-head:first-child { margin-top: 0; }
+.section-head h2 { font-family: "Jua"; font-size: 19px; color: var(--plum); }
+.section-head .line { flex: 1; height: 1px; background: var(--line); }
+
+.card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 18px; padding: 16px 18px; }
+
+/* ── flashcard ── */
+.review-progress { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.flashcard {
+  background: var(--paper); border: 2px solid var(--line); border-radius: 22px;
+  min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 28px 20px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.flashcard .word { font-family: "Jua"; font-size: 30px; color: var(--plum); word-break: break-word; }
+.flashcard .meaning { font-size: 17px; color: var(--coral); margin-top: 10px; display: none; }
+.flashcard .unit-tag { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.flashcard .hint { font-size: 12px; color: var(--muted); margin-top: 14px; }
+.flashcard.flipped .meaning { display: block; }
+.flashcard.flipped .hint { display: none; }
+
+.review-btns { display: flex; gap: 10px; margin-top: 14px; }
+.review-btns button {
+  flex: 1; font-family: "Jua"; font-size: 16px; border: 0; border-radius: 16px; padding: 14px 0; cursor: pointer;
+}
+.btn-dontknow { background: var(--wrong-soft, var(--coral-soft)); color: var(--coral); }
+.btn-know { background: var(--mint-soft); color: var(--mint); }
+.review-btns button:disabled { opacity: .35; cursor: default; }
+
+.empty-review { text-align: center; padding: 30px 10px; color: var(--muted); }
+.empty-review .big { font-size: 40px; margin-bottom: 8px; }
+
+/* ── word list ── */
+.wordlist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.wordlist li { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.wordlist .w { flex: 1; min-width: 0; }
+.wordlist .w .word { font-weight: 700; }
+.wordlist .w .meaning { font-size: 13px; color: var(--muted); }
+.status-pill { font-size: 11px; border-radius: 99px; padding: 3px 9px; white-space: nowrap; }
+.status-new { background: var(--coral-soft); color: var(--coral); }
+.status-learning { background: var(--gold-soft); color: var(--gold); }
+.status-mastered { background: var(--mint-soft); color: var(--mint); }
+.wordlist .del { border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 2px 4px; }
+.wordlist .del:hover { color: var(--coral); }
+.empty { text-align: center; color: var(--muted); font-size: 14px; padding: 16px 0; }
+
+footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bottom,0px)); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="back" href="index.html">‹ 처음으로</a>
+  <span class="emoji">📒</span>
+  <h1 class="jua">단어장</h1>
+  <p>유닛에서 고른 단어를 반복해서 외워 보자</p>
+</header>
+
+<main class="wrap">
+
+  <div class="section-head"><h2 class="jua">오늘의 복습</h2><span class="line"></span></div>
+  <div class="card">
+    <div class="review-progress" id="reviewProgress"></div>
+    <div id="reviewArea"></div>
+  </div>
+
+  <div class="section-head"><h2 class="jua">내 단어장</h2><span class="line"></span></div>
+  <div class="card">
+    <ul class="wordlist" id="wordList"></ul>
+    <p class="empty" id="wordListEmpty" hidden>아직 저장한 단어가 없어요. 유닛의 단어장에서 단어를 탭해 보자!</p>
+  </div>
+
+</main>
+
+<footer>사랑이 맞춤 영어 교재 🌸</footer>
+
+<script type="module">
+import { requireLogin } from './js/login-ui.js';
+import { getDueWords, getAllWords, reviewKnow, reviewDontKnow, deleteVocabWord } from './js/vocab-client.js';
+
+let queue = [];
+let totalToday = 0;
+let current = null;
+let flipped = false;
+
+function statusOf(box) {
+  if (box <= 1) return { cls: 'status-new', label: '😵 외우는 중' };
+  if (box <= 3) return { cls: 'status-learning', label: '📖 공부 중' };
+  return { cls: 'status-mastered', label: '🌳 거의 암기' };
+}
+
+function fmtDue(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const days = Math.round((d.setHours(0,0,0,0) - now.setHours(0,0,0,0)) / 86400000);
+  if (days <= 0) return '오늘';
+  if (days === 1) return '내일';
+  return `${days}일 후`;
+}
+
+function renderReview() {
+  const area = document.getElementById('reviewArea');
+  const prog = document.getElementById('reviewProgress');
+  if (!current) {
+    area.innerHTML = `<div class="empty-review"><div class="big">🎉</div>오늘 복습할 단어를 다 끝냈어요!</div>`;
+    prog.textContent = totalToday > 0 ? `오늘 ${totalToday}개 복습 완료` : '';
+    return;
+  }
+  prog.textContent = `오늘 복습: ${queue.length + 1} / ${totalToday} 남음`;
+  area.innerHTML = `
+    <div class="flashcard ${flipped ? 'flipped' : ''}" id="card">
+      <div class="word">${current.word}</div>
+      <div class="meaning">${current.meaning}</div>
+      <div class="unit-tag">${current.unit_id ? current.unit_id.replace('unit', 'Unit ') : ''}</div>
+      <div class="hint">탭해서 뜻 보기</div>
+    </div>
+    <div class="review-btns">
+      <button class="btn-dontknow" id="btnDontKnow" ${flipped ? '' : 'disabled'}>😵 몰라요</button>
+      <button class="btn-know" id="btnKnow" ${flipped ? '' : 'disabled'}>✅ 알아요</button>
+    </div>`;
+  document.getElementById('card').addEventListener('click', () => { flipped = true; renderReview(); });
+  if (flipped) {
+    document.getElementById('btnDontKnow').addEventListener('click', () => nextCard(false));
+    document.getElementById('btnKnow').addEventListener('click', () => nextCard(true));
+  }
+}
+
+async function nextCard(knew) {
+  const w = current;
+  if (knew) await reviewKnow(w.id, w.box);
+  else await reviewDontKnow(w.id);
+  current = queue.shift() || null;
+  flipped = false;
+  renderReview();
+  await refreshWordList();
+}
+
+async function startReview() {
+  queue = await getDueWords();
+  totalToday = queue.length;
+  current = queue.shift() || null;
+  flipped = false;
+  renderReview();
+}
+
+async function refreshWordList() {
+  const words = await getAllWords();
+  const listEl = document.getElementById('wordList');
+  const emptyEl = document.getElementById('wordListEmpty');
+  listEl.innerHTML = words.map(w => {
+    const s = statusOf(w.box);
+    return `<li data-id="${w.id}">
+      <div class="w"><div class="word">${w.word}</div><div class="meaning">${w.meaning}</div></div>
+      <span class="status-pill ${s.cls}">${s.label}</span>
+      <span class="status-pill" style="background:var(--line);color:var(--muted)">${fmtDue(w.due_at)}</span>
+      <button class="del" data-id="${w.id}" aria-label="삭제">×</button>
+    </li>`;
+  }).join('');
+  emptyEl.hidden = words.length > 0;
+}
+
+document.getElementById('wordList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.del');
+  if (!btn) return;
+  await deleteVocabWord(btn.dataset.id);
+  await refreshWordList();
+  await startReview();
+});
+
+(async function () {
+  await requireLogin();
+  await startReview();
+  await refreshWordList();
+})();
+</script>
+</body>
+</html>

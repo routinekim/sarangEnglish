@@ -109,7 +109,7 @@ body {
 
 /* ── stats bar ── */
 .stats {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(2, 1fr);
   gap: 10px; margin-bottom: 24px;
 }
 .stat {
@@ -181,8 +181,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 
   <div class="stats" id="stats">
     <div class="stat"><div class="val" id="s-units">8</div><div class="key">유닛</div></div>
-    <div class="stat"><div class="val" id="s-done">0</div><div class="key">완료 문제</div></div>
-    <div class="stat"><div class="val" id="s-hint">-</div><div class="key">남은 힌트</div></div>
+    <div class="stat"><div class="val" id="s-done">0</div><div class="key">완료한 유닛</div></div>
   </div>
 
   <div class="section-head">
@@ -222,12 +221,23 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
     </div>
   </a>
 
-  <a class="unit-card" href="interests.html" style="margin-bottom:24px;">
+  <a class="unit-card" href="interests.html" style="margin-bottom:14px;">
     <div class="card-top" style="min-height:64px;">
       <div class="badge" style="width:56px;"><span style="font-size:24px;">💭</span></div>
       <div class="info">
         <span class="title">관심사 저장하기</span>
         <span class="desc">요즘 좋아하는 것 적어두기</span>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+  </a>
+
+  <a class="unit-card" href="vocab.html" style="margin-bottom:24px;">
+    <div class="card-top" style="min-height:64px;">
+      <div class="badge" style="width:56px;"><span style="font-size:24px;">📒</span></div>
+      <div class="info">
+        <span class="title">단어장 암기하기</span>
+        <span class="desc">저장한 단어 반복 복습</span>
       </div>
       <span class="arrow">›</span>
     </div>
@@ -350,14 +360,19 @@ const UNITS = [
   { n: 6, topic: 'Drawing & Illustration', title: '그림 그리기' },
   { n: 7, topic: 'Singing & Vocal', title: '노래·보컬' },
   { n: 8, topic: 'K-Drama', title: '한국 드라마' },
+  { n: 9, topic: 'K-pop', title: 'RESCENE Members' },
+  { n: 10, topic: 'Pets', title: 'Pet Snails' },
+  { n: 11, topic: 'Character', title: 'Pompompurin' },
+  { n: 12, topic: 'Travel', title: 'Universal Studios Japan' },
 ];
 const UNIT_PAGE_SIZE = 10;
 let unitProgress = {};
+let unitPoints = {};
 
 function unitCardHTML(u) {
   const id = 'unit' + String(u.n).padStart(2, '0');
   const p = unitProgress[id] || { done: 0, correct: 0 };
-  const progText = p.correct === 12 ? '✅ 완료!' : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
+  const progText = p.correct === 12 ? `✅ 완료! ${fmtPts(unitPoints[id] || 0)}` : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
   return `<a class="unit-card" href="${id}/index.html">
     <div class="card-top">
       <div class="badge"><span class="num">${String(u.n).padStart(2, '0')}</span><span class="label">UNIT</span></div>
@@ -399,10 +414,13 @@ document.getElementById('unitPager').addEventListener('click', (e) => {
 
 (async function () {
   await requireLogin();
-  const summary = await loadAllProgressSummary();
+  const [summary, pointsSummary, history] = await Promise.all([
+    loadAllProgressSummary(), getPointsSummary(), getHistory()
+  ]);
   document.getElementById('s-units').textContent = UNITS.length;
+  unitPoints = pointsSummary.perUnit;
 
-  let hintsLeft = 3, totalDone = 0, firstIncompleteN = null;
+  let completedUnits = 0, firstIncompleteN = null;
   UNITS.forEach(u => {
     const id = 'unit' + String(u.n).padStart(2, '0');
     const d = summary[id];
@@ -410,18 +428,16 @@ document.getElementById('unitPager').addEventListener('click', (e) => {
     const correct = d ? Object.keys(d.locked || {}).length : 0;
     unitProgress[id] = { done, correct };
     if (firstIncompleteN === null && correct < 12) firstIncompleteN = u.n;
-    if (u.n === 1) { hintsLeft = d ? (d.hintsLeft ?? 3) : 3; totalDone = correct || done; }
+    if (correct === 12) completedUnits++;
   });
 
-  document.getElementById('s-done').textContent = totalDone;
-  document.getElementById('s-hint').textContent = hintsLeft;
+  document.getElementById('s-done').textContent = `${completedUnits} / ${UNITS.length}`;
 
   const initialPage = firstIncompleteN === null
     ? Math.max(1, Math.ceil(UNITS.length / UNIT_PAGE_SIZE))
     : Math.ceil(firstIncompleteN / UNIT_PAGE_SIZE);
   renderUnitPage(initialPage);
 
-  const [pointsSummary, history] = await Promise.all([getPointsSummary(), getHistory()]);
   document.getElementById('recTotal').innerHTML = `${fmtPts(pointsSummary.total).replace('점', '')}<small>점</small>`;
   document.getElementById('recLevel').textContent = `Lv.${pointsSummary.level}`;
   renderBadges(pointsSummary.badgeUnits);

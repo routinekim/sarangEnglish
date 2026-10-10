@@ -27,7 +27,7 @@ export async function awardPoints(unitId, entries) {
 
 export async function getPointsSummary() {
   const session = await getSession();
-  if (!session) return { total: 0, level: 1, badgeUnits: [] };
+  if (!session) return { total: 0, level: 1, badgeUnits: [], perUnit: {} };
   const { data, error } = await supabase
     .from('point_events').select('unit_id, reason, points')
     .eq('user_id', session.user.id);
@@ -35,7 +35,9 @@ export async function getPointsSummary() {
   const total = data.reduce((sum, r) => sum + Number(r.points), 0);
   const level = Math.floor(total / 200) + 1;
   const badgeUnits = [...new Set(data.filter(r => r.reason === 'unit_perfect').map(r => r.unit_id))];
-  return { total, level, badgeUnits };
+  const perUnit = {};
+  data.forEach(r => { perUnit[r.unit_id] = (perUnit[r.unit_id] || 0) + Number(r.points); });
+  return { total, level, badgeUnits, perUnit };
 }
 
 export async function getHistory() {
