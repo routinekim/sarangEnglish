@@ -119,6 +119,50 @@ body {
 .stat .val { font-family: "Jua"; font-size: 26px; color: var(--coral); line-height: 1; }
 .stat .key { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
+/* ── records (points/level/badges/calendar) ── */
+.record-card { margin-bottom: 24px; }
+.record-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.record-top .total { font-family: "Jua"; font-size: 40px; color: var(--coral); line-height: 1; }
+.record-top .total small { font-size: 16px; color: var(--muted); font-family: "Noto Sans KR"; }
+.record-top .level { background: var(--gold-soft); color: var(--gold); font-family: "Jua"; font-size: 14px; border-radius: 99px; padding: 4px 12px; white-space: nowrap; }
+
+.badges-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.badge-dot {
+  width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; background: var(--line); color: var(--muted);
+}
+.badge-dot.got { background: var(--mint-soft); color: var(--mint); }
+
+.cal { border-top: 1px dashed var(--line); padding-top: 14px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cal-head .label { font-family: "Jua"; font-size: 15px; color: var(--plum); }
+.cal-head button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 99px; width: 28px; height: 28px; cursor: pointer; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr) 0.9fr; gap: 4px; text-align: center; }
+.cal-grid .dow { font-size: 11px; color: var(--muted); padding-bottom: 4px; }
+.cal-grid .dow.wk { font-weight: 700; color: var(--plum); }
+.cal-grid .day { position: relative; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; font-size: 12.5px; cursor: default; color: var(--ink); }
+.cal-grid .day.out { opacity: .32; }
+.cal-grid .day.has { background: var(--coral-soft); color: var(--coral); cursor: pointer; font-weight: 700; }
+.cal-grid .day.has .pts { font-size: 9px; }
+.cal-grid .day.sel { outline: 2px solid var(--coral); }
+.cal-grid .day.today { box-shadow: inset 0 0 0 1.5px var(--plum); }
+.cal-grid .week-total { display: flex; align-items: center; justify-content: center; font-family: "Jua"; font-size: 11.5px; color: var(--coral); background: var(--bg); border-radius: 10px; }
+.cal-grid .week-total.empty { color: var(--muted); }
+
+.history { margin-top: 14px; }
+.history .h-title { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.history ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.history li { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; background: var(--bg); border-radius: 10px; padding: 7px 10px; }
+.history .h-reason { color: var(--muted); }
+.history .h-pt { font-family: "Jua"; color: var(--coral); white-space: nowrap; }
+.history .h-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0; }
+
+/* ── pagination ── */
+.pager { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 18px 0 8px; flex-wrap: wrap; }
+.pg-btn { min-width: 34px; height: 34px; padding: 0 4px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-family: "Jua"; font-size: 14px; cursor: pointer; }
+.pg-btn.on { background: var(--plum); color: #fff; border-color: var(--plum); }
+.pg-btn:disabled { opacity: .35; cursor: default; }
+
 /* ── footer ── */
 footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bottom,0px)); color: var(--muted); font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -142,248 +186,248 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
   </div>
 
   <div class="section-head">
+    <h2 class="jua">내 기록</h2>
+    <span class="line"></span>
+  </div>
+
+  <div class="card record-card" style="background:var(--paper);border:1.5px solid var(--line);border-radius:22px;padding:18px 18px 16px;">
+    <div class="record-top">
+      <div class="total" id="recTotal">0<small>점</small></div>
+      <span class="level" id="recLevel">Lv.1</span>
+    </div>
+    <div class="badges-row" id="recBadges"></div>
+    <div class="cal">
+      <div class="cal-head">
+        <button id="calPrev" aria-label="이전 달">‹</button>
+        <span class="label jua" id="calLabel"></span>
+        <button id="calNext" aria-label="다음 달">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="history">
+      <p class="h-title" id="histTitle">최근 기록</p>
+      <ul id="histList"></ul>
+      <p class="h-empty" id="histEmpty" hidden>아직 기록이 없어요.</p>
+    </div>
+  </div>
+
+  <a class="unit-card" href="points.html" style="margin-bottom:14px;">
+    <div class="card-top" style="min-height:64px;">
+      <div class="badge" style="width:56px;"><span style="font-size:24px;">🏆</span></div>
+      <div class="info">
+        <span class="title">포인트 규칙 보기</span>
+        <span class="desc">포인트 · 레벨 · 뱃지 안내</span>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+  </a>
+
+  <a class="unit-card" href="interests.html" style="margin-bottom:24px;">
+    <div class="card-top" style="min-height:64px;">
+      <div class="badge" style="width:56px;"><span style="font-size:24px;">💭</span></div>
+      <div class="info">
+        <span class="title">관심사 저장하기</span>
+        <span class="desc">요즘 좋아하는 것 적어두기</span>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+  </a>
+
+  <div class="section-head">
     <h2 class="jua">유닛 목록</h2>
     <span class="line"></span>
   </div>
 
-  <!-- UNIT 01 -->
-  <a class="unit-card" href="unit01/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">01</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">K-pop</span>
-        <span class="title">RESCENE 리센느</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom" id="u01-bar">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u01-prog">0 / 12 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 02 (coming soon) -->
-  <a class="unit-card" href="unit02/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">02</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Dance</span>
-        <span class="title">방송 댄스</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u02-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 03 (coming soon) -->
-  <a class="unit-card" href="unit03/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">03</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Fashion & Design</span>
-        <span class="title">패션 디자인</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u03-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 04 -->
-  <a class="unit-card" href="unit04/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">04</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Accessories &amp; Crafts</span>
-        <span class="title">액세서리 만들기</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u04-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-
-  <!-- UNIT 05 -->
-  <a class="unit-card" href="unit05/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">05</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Beauty</span>
-        <span class="title">뷰티 디자이너</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u05-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 06 -->
-  <a class="unit-card" href="unit06/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">06</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Drawing & Illustration</span>
-        <span class="title">그림 그리기</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u06-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 07 -->
-  <a class="unit-card" href="unit07/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">07</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">Singing & Vocal</span>
-        <span class="title">노래·보컬</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u07-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
-
-  <!-- UNIT 08 -->
-  <a class="unit-card" href="unit08/index.html">
-    <div class="card-top">
-      <div class="badge">
-        <span class="num">08</span>
-        <span class="label">UNIT</span>
-      </div>
-      <div class="info">
-        <span class="topic">K-Drama</span>
-        <span class="title">한국 드라마</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink" id="u08-prog">아직 안 풀었어요</span>
-    </div>
-  </a>
+  <div id="unitList"></div>
+  <div class="pager" id="unitPager"></div>
 
 </main>
 
 <footer>사랑이 맞춤 영어 교재 🌸</footer>
 
-<script>
-// Unit 01 진행 상황을 localStorage에서 읽어 표시
-(function () {
-  try {
-    const raw = localStorage.getItem('unit01');
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    const state   = d.state   || {};
-    const locked  = d.locked  || {};
-    const hintsLeft = d.hintsLeft ?? 3;
+<script type="module">
+import { requireLogin } from './js/login-ui.js';
+import { loadAllProgressSummary } from './js/supabase-client.js';
+import { getPointsSummary, getHistory } from './js/points-client.js';
 
-    const total = 12;
-    const done  = Object.keys(state).length;
-    const correct = Object.keys(locked).length;
+const REASON_LABEL = {
+  correct: '문제 정답',
+  retry_correct: '다시 풀어서 정답',
+  unit_perfect: '유닛 만점 보너스',
+  no_hint_bonus: '힌트 없이 만점 보너스',
+};
+function unitLabel(id) { return 'Unit ' + id.replace('unit', ''); }
+function fmtPts(p) { return (p % 1 === 0 ? p : p.toFixed(1)) + '점'; }
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-    document.getElementById('u01-prog').textContent =
-      correct === total ? '✅ 완료!' :
-      done > 0          ? `${done} / ${total} 풀었어요` :
-                          '아직 안 풀었어요';
+let allHistory = [];
+let calMonth = new Date(); calMonth.setDate(1);
+let selectedDate = null;
 
-    document.getElementById('s-done').textContent = correct || done;
-  // unit02
-  try {
-    const d2 = JSON.parse(localStorage.getItem('unit02')||'null');
-    if (d2) {
-      const c2=Object.keys(d2.locked||{}).length, do2=Object.keys(d2.state||{}).length;
-      document.getElementById('u02-prog').textContent = c2===12?'✅ 완료!':do2>0?`${do2} / 12 풀었어요`:'아직 안 풀었어요';
+function renderBadges(badgeUnits) {
+  const set = new Set(badgeUnits);
+  document.getElementById('recBadges').innerHTML = Array.from({ length: 8 }, (_, i) => {
+    const id = 'unit' + String(i + 1).padStart(2, '0');
+    const got = set.has(id);
+    return `<span class="badge-dot ${got ? 'got' : ''}" title="${unitLabel(id)} ${got ? '완료' : '미완료'}">${got ? '🎖️' : i + 1}</span>`;
+  }).join('');
+}
+
+function renderCalendar() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  document.getElementById('calLabel').textContent = `${y}년 ${m + 1}월`;
+  const byDate = {};
+  allHistory.forEach(ev => {
+    const key = dateKey(new Date(ev.created_at));
+    byDate[key] = (byDate[key] || 0) + Number(ev.points);
+  });
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayKey = dateKey(new Date());
+
+  // 이 달의 1일이 속한 주의 일요일부터, 마지막 날이 속한 주의 토요일까지 꽉 채운 그리드
+  const gridStart = new Date(y, m, 1 - firstDow);
+  const cellCount = Math.ceil((firstDow + daysInMonth) / 7) * 7;
+
+  let html = ['일', '월', '화', '수', '목', '금', '토', '합계'].map((d, i) => `<span class="dow${i === 7 ? ' wk' : ''}">${d}</span>`).join('');
+  let weekTotal = 0;
+  for (let i = 0; i < cellCount; i++) {
+    const d = new Date(gridStart); d.setDate(gridStart.getDate() + i);
+    const key = dateKey(d);
+    const pts = byDate[key] || 0;
+    weekTotal += pts;
+    const cls = ['day'];
+    if (d.getMonth() !== m) cls.push('out');
+    if (pts) cls.push('has');
+    if (key === todayKey) cls.push('today');
+    if (key === selectedDate) cls.push('sel');
+    html += `<span class="${cls.join(' ')}" data-date="${key}">${d.getDate()}${pts ? `<span class="pts">+${fmtPts(pts)}</span>` : ''}</span>`;
+    if (i % 7 === 6) {
+      html += `<span class="week-total${weekTotal ? '' : ' empty'}">${weekTotal ? '+' + fmtPts(weekTotal) : '–'}</span>`;
+      weekTotal = 0;
     }
-  } catch(e) {}
-  // unit03
-  try {
-    const d3 = JSON.parse(localStorage.getItem('unit03')||'null');
-    if (d3) {
-      const c3=Object.keys(d3.locked||{}).length, do3=Object.keys(d3.state||{}).length;
-      document.getElementById('u03-prog').textContent = c3===12?'✅ 완료!':do3>0?`${do3} / 12 풀었어요`:'아직 안 풀었어요';
-    }
-  } catch(e) {}
-    document.getElementById('s-hint').textContent = hintsLeft;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
 
-  try {
-    const d4=JSON.parse(localStorage.getItem('unit04')||'null');
-    if(d4){const c4=Object.keys(d4.locked||{}).length,do4=Object.keys(d4.state||{}).length;
-    document.getElementById('u04-prog').textContent=c4===12?'✅ 완료!':do4>0?do4+' / 12 풀었어요':'아직 안 풀었어요';}
-  } catch(e){}
-  try {
-    const d5=JSON.parse(localStorage.getItem('unit05')||'null');
-    if(d5){const c5=Object.keys(d5.locked||{}).length,do5=Object.keys(d5.state||{}).length;
-    document.getElementById('u05-prog').textContent=c5===12?'✅ 완료!':do5>0?do5+' / 12 풀었어요':'아직 안 풀었어요';}
-  } catch(e){}
-  try {
-    const d6=JSON.parse(localStorage.getItem('unit06')||'null');
-    if(d6){const c6=Object.keys(d6.locked||{}).length,do6=Object.keys(d6.state||{}).length;
-    document.getElementById('u06-prog').textContent=c6===12?'✅ 완료!':do6>0?do6+' / 12 풀었어요':'아직 안 풀었어요';}
-  } catch(e){}
-  try {
-    const d7=JSON.parse(localStorage.getItem('unit07')||'null');
-    if(d7){const c7=Object.keys(d7.locked||{}).length,do7=Object.keys(d7.state||{}).length;
-    document.getElementById('u07-prog').textContent=c7===12?'✅ 완료!':do7>0?do7+' / 12 풀었어요':'아직 안 풀었어요';}
-  } catch(e){}
-  try {
-    const d8=JSON.parse(localStorage.getItem('unit08')||'null');
-    if(d8){const c8=Object.keys(d8.locked||{}).length,do8=Object.keys(d8.state||{}).length;
-    document.getElementById('u08-prog').textContent=c8===12?'✅ 완료!':do8>0?do8+' / 12 풀었어요':'아직 안 풀었어요';}
-  } catch(e){}
-  } catch (e) {}
+function renderHistory() {
+  const listEl = document.getElementById('histList');
+  const emptyEl = document.getElementById('histEmpty');
+  const titleEl = document.getElementById('histTitle');
+  let items;
+  if (selectedDate) {
+    items = allHistory.filter(ev => dateKey(new Date(ev.created_at)) === selectedDate);
+    titleEl.textContent = `${selectedDate} 기록`;
+  } else {
+    items = allHistory.slice(0, 10);
+    titleEl.textContent = '최근 기록';
+  }
+  listEl.innerHTML = items.map(ev => {
+    const d = new Date(ev.created_at);
+    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `<li><span class="h-reason">${time} · ${unitLabel(ev.unit_id)} · ${REASON_LABEL[ev.reason] || ev.reason}</span><span class="h-pt">+${fmtPts(Number(ev.points))}</span></li>`;
+  }).join('');
+  emptyEl.hidden = items.length > 0;
+}
+
+document.getElementById('calPrev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() - 1); renderCalendar(); });
+document.getElementById('calNext').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() + 1); renderCalendar(); });
+document.getElementById('calGrid').addEventListener('click', (e) => {
+  const day = e.target.closest('.day.has');
+  if (!day) return;
+  selectedDate = selectedDate === day.dataset.date ? null : day.dataset.date;
+  renderCalendar();
+  renderHistory();
+});
+
+// ── 유닛 목록 (페이지당 10개) ──
+const UNITS = [
+  { n: 1, topic: 'K-pop', title: 'RESCENE 리센느' },
+  { n: 2, topic: 'Dance', title: '방송 댄스' },
+  { n: 3, topic: 'Fashion & Design', title: '패션 디자인' },
+  { n: 4, topic: 'Accessories &amp; Crafts', title: '액세서리 만들기' },
+  { n: 5, topic: 'Beauty', title: '뷰티 디자이너' },
+  { n: 6, topic: 'Drawing & Illustration', title: '그림 그리기' },
+  { n: 7, topic: 'Singing & Vocal', title: '노래·보컬' },
+  { n: 8, topic: 'K-Drama', title: '한국 드라마' },
+];
+const UNIT_PAGE_SIZE = 10;
+let unitProgress = {};
+
+function unitCardHTML(u) {
+  const id = 'unit' + String(u.n).padStart(2, '0');
+  const p = unitProgress[id] || { done: 0, correct: 0 };
+  const progText = p.correct === 12 ? '✅ 완료!' : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
+  return `<a class="unit-card" href="${id}/index.html">
+    <div class="card-top">
+      <div class="badge"><span class="num">${String(u.n).padStart(2, '0')}</span><span class="label">UNIT</span></div>
+      <div class="info">
+        <span class="topic">${u.topic}</span>
+        <span class="title">${u.title}</span>
+        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="card-bottom">
+      <span class="chip">📖 TTS 듣기</span>
+      <span class="chip orange">💡 힌트 3회</span>
+      <span class="chip pink">${progText}</span>
+    </div>
+  </a>`;
+}
+
+function renderUnitPage(page) {
+  const totalPages = Math.max(1, Math.ceil(UNITS.length / UNIT_PAGE_SIZE));
+  page = Math.min(Math.max(1, page), totalPages);
+  const start = (page - 1) * UNIT_PAGE_SIZE;
+  document.getElementById('unitList').innerHTML = UNITS.slice(start, start + UNIT_PAGE_SIZE).map(unitCardHTML).join('');
+
+  const pagerEl = document.getElementById('unitPager');
+  if (totalPages <= 1) { pagerEl.innerHTML = ''; return; }
+  let html = `<button class="pg-btn" data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>‹</button>`;
+  for (let p = 1; p <= totalPages; p++) html += `<button class="pg-btn ${p === page ? 'on' : ''}" data-page="${p}">${p}</button>`;
+  html += `<button class="pg-btn" data-page="${page + 1}" ${page === totalPages ? 'disabled' : ''}>›</button>`;
+  pagerEl.innerHTML = html;
+}
+
+document.getElementById('unitPager').addEventListener('click', (e) => {
+  const btn = e.target.closest('.pg-btn');
+  if (!btn || btn.disabled) return;
+  renderUnitPage(Number(btn.dataset.page));
+  document.getElementById('unitList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+(async function () {
+  await requireLogin();
+  const summary = await loadAllProgressSummary();
+  document.getElementById('s-units').textContent = UNITS.length;
+
+  let hintsLeft = 3, totalDone = 0, firstIncompleteN = null;
+  UNITS.forEach(u => {
+    const id = 'unit' + String(u.n).padStart(2, '0');
+    const d = summary[id];
+    const done = d ? Object.keys(d.state || {}).length : 0;
+    const correct = d ? Object.keys(d.locked || {}).length : 0;
+    unitProgress[id] = { done, correct };
+    if (firstIncompleteN === null && correct < 12) firstIncompleteN = u.n;
+    if (u.n === 1) { hintsLeft = d ? (d.hintsLeft ?? 3) : 3; totalDone = correct || done; }
+  });
+
+  document.getElementById('s-done').textContent = totalDone;
+  document.getElementById('s-hint').textContent = hintsLeft;
+
+  const initialPage = firstIncompleteN === null
+    ? Math.max(1, Math.ceil(UNITS.length / UNIT_PAGE_SIZE))
+    : Math.ceil(firstIncompleteN / UNIT_PAGE_SIZE);
+  renderUnitPage(initialPage);
+
+  const [pointsSummary, history] = await Promise.all([getPointsSummary(), getHistory()]);
+  document.getElementById('recTotal').innerHTML = `${fmtPts(pointsSummary.total).replace('점', '')}<small>점</small>`;
+  document.getElementById('recLevel').textContent = `Lv.${pointsSummary.level}`;
+  renderBadges(pointsSummary.badgeUnits);
+  allHistory = history;
+  renderCalendar();
+  renderHistory();
 })();
 </script>
 </body>

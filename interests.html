@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>관심사 저장 — 사랑이의 Reading Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FBF4F8; --paper: #FFFFFF; --ink: #2C1F33; --muted: #7A6A82;
+  --plum: #5B2A6B; --coral: #FF6F91; --coral-soft: #FFE1E8;
+  --mint: #3FB9A5; --mint-soft: #DDF5F0; --line: #E9DCE6;
+  --gold: #F4A623; --gold-soft: #FFF3D6;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1522; --paper: #2A1E30; --ink: #F4ECF5; --muted: #B9A9C2;
+    --plum: #D9B3E8; --coral: #FF8AA6; --coral-soft: #4A2634;
+    --mint: #6EDBC8; --mint-soft: #1F4038; --line: #43344A;
+    --gold: #FFD166; --gold-soft: #3D2E00;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+}
+.jua { font-family: "Jua", "Noto Sans KR", sans-serif; font-weight: 400; }
+
+.hero {
+  background: linear-gradient(145deg, var(--plum) 0%, #8B3FA8 60%, var(--coral) 100%);
+  color: #fff;
+  padding: calc(env(safe-area-inset-top, 0px) + 40px) 24px 36px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero .emoji { font-size: 44px; line-height: 1; margin-bottom: 10px; display: block; }
+.hero h1 { font-family: "Jua"; font-size: 26px; letter-spacing: .02em; margin-bottom: 6px; }
+.hero p { font-size: 14px; opacity: .88; }
+.back { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); left: 16px; color: #fff; text-decoration: none; font-size: 14px; background: rgba(255,255,255,.18); border-radius: 99px; padding: 6px 14px; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+
+.section-head { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+.section-head:first-child { margin-top: 0; }
+.section-head h2 { font-family: "Jua"; font-size: 19px; color: var(--plum); }
+.section-head .line { flex: 1; height: 1px; background: var(--line); }
+
+.card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 18px; padding: 16px 18px; }
+
+.add-form { display: flex; gap: 8px; }
+.add-form input {
+  flex: 1; padding: 12px 14px; border-radius: 99px; border: 2px solid var(--line);
+  font-size: 15px; background: var(--bg); color: var(--ink);
+}
+.add-form input:focus { outline: none; border-color: var(--coral); }
+.add-form button {
+  flex-shrink: 0; border: 0; border-radius: 99px; padding: 0 20px;
+  background: var(--coral); color: #fff; font-family: "Jua"; font-size: 15px; cursor: pointer;
+}
+.add-form button:disabled { opacity: .5; cursor: default; }
+
+.list { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.list li {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--mint-soft); border-radius: 14px; padding: 10px 14px;
+}
+.list .txt { flex: 1; color: var(--ink); }
+.list .date { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.list .del { border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+.list .del:hover { color: var(--coral); }
+
+.empty { text-align: center; color: var(--muted); font-size: 14px; padding: 20px 0; }
+
+footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bottom,0px)); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="back" href="index.html">‹ 처음으로</a>
+  <span class="emoji">💭</span>
+  <h1 class="jua">관심사 저장하기</h1>
+  <p>요즘 좋아하는 거, 하고 싶은 거 뭐든 적어줘!</p>
+</header>
+
+<main class="wrap">
+
+  <div class="section-head"><h2 class="jua">새 관심사 추가</h2><span class="line"></span></div>
+  <div class="card">
+    <form class="add-form" id="addForm">
+      <input id="interestInput" type="text" placeholder="예: 아이브, 베이킹, 고양이..." maxlength="60" autocomplete="off">
+      <button id="addBtn" type="submit">추가</button>
+    </form>
+  </div>
+
+  <div class="section-head"><h2 class="jua">내가 저장한 관심사</h2><span class="line"></span></div>
+  <div class="card">
+    <ul class="list" id="list"></ul>
+    <p class="empty" id="empty" hidden>아직 저장한 관심사가 없어요. 위에서 추가해 보자!</p>
+  </div>
+
+</main>
+
+<footer>사랑이 맞춤 영어 교재 🌸</footer>
+
+<script type="module">
+import { requireLogin } from './js/login-ui.js';
+import { addInterest, loadInterests, deleteInterest } from './js/supabase-client.js';
+
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('empty');
+const form = document.getElementById('addForm');
+const input = document.getElementById('interestInput');
+const addBtn = document.getElementById('addBtn');
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+function render(items) {
+  listEl.innerHTML = items.map(it => `
+    <li data-id="${it.id}">
+      <span class="txt">${it.text}</span>
+      <span class="date">${fmtDate(it.created_at)}</span>
+      <button class="del" data-id="${it.id}" aria-label="삭제">×</button>
+    </li>`).join('');
+  emptyEl.hidden = items.length > 0;
+}
+
+async function refresh() {
+  const items = await loadInterests();
+  render(items);
+}
+
+(async function () {
+  await requireLogin();
+  await refresh();
+})();
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  addBtn.disabled = true;
+  try {
+    await addInterest(text);
+    input.value = '';
+    await refresh();
+  } catch (err) {
+    console.error('addInterest failed', err);
+    alert('저장에 실패했어요: ' + (err.message || err));
+  } finally {
+    addBtn.disabled = false;
+    input.focus();
+  }
+});
+
+listEl.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.del');
+  if (!btn) return;
+  try {
+    await deleteInterest(btn.dataset.id);
+    await refresh();
+  } catch (err) {
+    console.error('deleteInterest failed', err);
+    alert('삭제에 실패했어요: ' + (err.message || err));
+  }
+});
+</script>
+</body>
+</html>
