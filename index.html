@@ -11,7 +11,7 @@
   --bg: #FBF4F8; --paper: #FFFFFF; --ink: #2C1F33; --muted: #7A6A82;
   --plum: #5B2A6B; --coral: #FF6F91; --coral-soft: #FFE1E8;
   --mint: #3FB9A5; --mint-soft: #DDF5F0; --line: #E9DCE6;
-  --gold: #F4A623; --gold-soft: #FFF3D6;
+  --gold: #F4A623; --gold-soft: #FFF3D6; --done-bg: #EEEBEF;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -21,7 +21,7 @@
     --bg: #1E1522; --paper: #2A1E30; --ink: #F4ECF5; --muted: #B9A9C2;
     --plum: #D9B3E8; --coral: #FF8AA6; --coral-soft: #4A2634;
     --mint: #6EDBC8; --mint-soft: #1F4038; --line: #43344A;
-    --gold: #FFD166; --gold-soft: #3D2E00;
+    --gold: #FFD166; --gold-soft: #3D2E00; --done-bg: #342C3A;
   }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,6 +73,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .unit-card:active { transform: scale(.98); }
+.unit-card.done { background: var(--done-bg); }
 .unit-card .card-top {
   display: flex; align-items: stretch; min-height: 96px;
 }
@@ -400,8 +401,9 @@ let unitPoints = {};
 function unitCardHTML(u) {
   const id = 'unit' + String(u.n).padStart(2, '0');
   const p = unitProgress[id] || { done: 0, correct: 0 };
-  const progText = p.correct === 12 ? `🎖️ 완료! ${fmtPts(unitPoints[id] || 0)}` : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
-  return `<a class="unit-card" href="${id}/index.html">
+  const isDone = p.correct === 12;
+  const progText = isDone ? `🎖️ 완료! ${fmtPts(unitPoints[id] || 0)}` : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
+  return `<a class="unit-card${isDone ? ' done' : ''}" href="${id}/index.html">
     <div class="card-top">
       <div class="badge"><span class="num">${String(u.n).padStart(2, '0')}</span><span class="label">UNIT</span></div>
       <div class="info">
