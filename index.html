@@ -119,6 +119,17 @@ body {
 .stat .val { font-family: "Jua"; font-size: 26px; color: var(--coral); line-height: 1; }
 .stat .key { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
+/* ── shortcuts row ── */
+.shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+.shortcut {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  text-decoration: none; background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  padding: 14px 6px; text-align: center; -webkit-tap-highlight-color: transparent;
+}
+.shortcut:active { transform: scale(.97); }
+.shortcut .ic { font-size: 22px; }
+.shortcut .lb { font-size: 12px; font-weight: 700; color: var(--ink); }
+
 /* ── records (points/level/badges/calendar) ── */
 .record-card { margin-bottom: 24px; }
 .record-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
@@ -144,17 +155,23 @@ body {
 .cal-grid .day.out { opacity: .32; }
 .cal-grid .day.has { background: var(--coral-soft); color: var(--coral); cursor: pointer; font-weight: 700; }
 .cal-grid .day.has .pts { font-size: 9px; }
+.cal-grid .day .pts-vocab { font-size: 9px; color: var(--mint); font-weight: 700; }
 .cal-grid .day.sel { outline: 2px solid var(--coral); }
 .cal-grid .day.today { box-shadow: inset 0 0 0 1.5px var(--plum); }
 .cal-grid .week-total { display: flex; align-items: center; justify-content: center; font-family: "Jua"; font-size: 11.5px; color: var(--coral); background: var(--bg); border-radius: 10px; }
 .cal-grid .week-total.empty { color: var(--muted); }
 
+.day-breakdown { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; font-size: 13px; color: var(--ink); }
+.day-breakdown .db-day { font-family: "Jua"; color: var(--plum); }
+.day-breakdown .db-label { color: var(--muted); }
+.day-breakdown b { font-family: "Jua"; color: var(--coral); }
+
 .history { margin-top: 14px; }
 .history .h-title { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .history ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-.history li { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; background: var(--bg); border-radius: 10px; padding: 7px 10px; }
-.history .h-reason { color: var(--muted); }
-.history .h-pt { font-family: "Jua"; color: var(--coral); white-space: nowrap; }
+.history li { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; background: var(--bg); border-radius: 10px; padding: 7px 10px; }
+.history .h-unit { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.history .h-times { font-size: 12px; color: var(--muted); }
 .history .h-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0; }
 
 /* ── pagination ── */
@@ -202,6 +219,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
         <button id="calNext" aria-label="다음 달">›</button>
       </div>
       <div class="cal-grid" id="calGrid"></div>
+      <div class="day-breakdown" id="dayBreakdown"></div>
     </div>
     <div class="history">
       <p class="h-title" id="histTitle">최근 기록</p>
@@ -210,38 +228,11 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
     </div>
   </div>
 
-  <a class="unit-card" href="points.html" style="margin-bottom:14px;">
-    <div class="card-top" style="min-height:64px;">
-      <div class="badge" style="width:56px;"><span style="font-size:24px;">🏆</span></div>
-      <div class="info">
-        <span class="title">포인트 규칙 보기</span>
-        <span class="desc">포인트 · 레벨 · 뱃지 안내</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-  </a>
-
-  <a class="unit-card" href="interests.html" style="margin-bottom:14px;">
-    <div class="card-top" style="min-height:64px;">
-      <div class="badge" style="width:56px;"><span style="font-size:24px;">💭</span></div>
-      <div class="info">
-        <span class="title">관심사 저장하기</span>
-        <span class="desc">요즘 좋아하는 것 적어두기</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-  </a>
-
-  <a class="unit-card" href="vocab.html" style="margin-bottom:24px;">
-    <div class="card-top" style="min-height:64px;">
-      <div class="badge" style="width:56px;"><span style="font-size:24px;">📒</span></div>
-      <div class="info">
-        <span class="title">단어장 암기하기</span>
-        <span class="desc">저장한 단어 반복 복습</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-  </a>
+  <div class="shortcuts">
+    <a class="shortcut" href="points.html"><span class="ic">🏆</span><span class="lb">포인트 규칙</span></a>
+    <a class="shortcut" href="interests.html"><span class="ic">💭</span><span class="lb">관심사 저장</span></a>
+    <a class="shortcut" href="vocab.html"><span class="ic">📒</span><span class="lb">단어장 암기</span></a>
+  </div>
 
   <div class="section-head">
     <h2 class="jua">유닛 목록</h2>
@@ -259,24 +250,27 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 import { requireLogin } from './js/login-ui.js';
 import { loadAllProgressSummary } from './js/supabase-client.js';
 import { getPointsSummary, getHistory } from './js/points-client.js';
+import { getSessions } from './js/session-client.js';
+import { getVocabDailyLog } from './js/vocab-client.js';
 
-const REASON_LABEL = {
-  correct: '문제 정답',
-  retry_correct: '다시 풀어서 정답',
-  unit_perfect: '유닛 만점 보너스',
-  no_hint_bonus: '힌트 없이 만점 보너스',
-};
 function unitLabel(id) { return 'Unit ' + id.replace('unit', ''); }
 function fmtPts(p) { return (p % 1 === 0 ? p : p.toFixed(1)) + '점'; }
 function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
 let allHistory = [];
+let allSessions = [];
+let allVocabLog = [];
 let calMonth = new Date(); calMonth.setDate(1);
 let selectedDate = null;
+function fmtTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
 function renderBadges(badgeUnits) {
   const set = new Set(badgeUnits);
-  document.getElementById('recBadges').innerHTML = Array.from({ length: 8 }, (_, i) => {
+  document.getElementById('recBadges').innerHTML = Array.from({ length: UNITS.length }, (_, i) => {
     const id = 'unit' + String(i + 1).padStart(2, '0');
     const got = set.has(id);
     return `<span class="badge-dot ${got ? 'got' : ''}" title="${unitLabel(id)} ${got ? '완료' : '미완료'}">${got ? '🎖️' : i + 1}</span>`;
@@ -287,9 +281,11 @@ function renderCalendar() {
   const y = calMonth.getFullYear(), m = calMonth.getMonth();
   document.getElementById('calLabel').textContent = `${y}년 ${m + 1}월`;
   const byDate = {};
+  const byDateVocab = {};
   allHistory.forEach(ev => {
     const key = dateKey(new Date(ev.created_at));
     byDate[key] = (byDate[key] || 0) + Number(ev.points);
+    if (ev.reason === 'vocab_daily') byDateVocab[key] = (byDateVocab[key] || 0) + Number(ev.points);
   });
   const firstDow = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
@@ -305,13 +301,14 @@ function renderCalendar() {
     const d = new Date(gridStart); d.setDate(gridStart.getDate() + i);
     const key = dateKey(d);
     const pts = byDate[key] || 0;
+    const vocabPts = byDateVocab[key] || 0;
     weekTotal += pts;
     const cls = ['day'];
     if (d.getMonth() !== m) cls.push('out');
     if (pts) cls.push('has');
     if (key === todayKey) cls.push('today');
     if (key === selectedDate) cls.push('sel');
-    html += `<span class="${cls.join(' ')}" data-date="${key}">${d.getDate()}${pts ? `<span class="pts">+${fmtPts(pts)}</span>` : ''}</span>`;
+    html += `<span class="${cls.join(' ')}" data-date="${key}">${d.getDate()}${pts ? `<span class="pts">${fmtPts(pts)}</span>` : ''}${vocabPts ? `<span class="pts-vocab">+${fmtPts(vocabPts)}</span>` : ''}</span>`;
     if (i % 7 === 6) {
       html += `<span class="week-total${weekTotal ? '' : ' empty'}">${weekTotal ? '+' + fmtPts(weekTotal) : '–'}</span>`;
       weekTotal = 0;
@@ -324,20 +321,50 @@ function renderHistory() {
   const listEl = document.getElementById('histList');
   const emptyEl = document.getElementById('histEmpty');
   const titleEl = document.getElementById('histTitle');
-  let items;
+
+  let unitItems = allSessions.map(s => ({ date: s.session_date, kind: 'unit', s }));
+  let vocabItems = allVocabLog.map(v => ({ date: v.log_date, kind: 'vocab', v }));
+  let items = [...unitItems, ...vocabItems].sort((a, b) => b.date.localeCompare(a.date));
+
   if (selectedDate) {
-    items = allHistory.filter(ev => dateKey(new Date(ev.created_at)) === selectedDate);
+    items = items.filter(it => it.date === selectedDate);
     titleEl.textContent = `${selectedDate} 기록`;
   } else {
-    items = allHistory.slice(0, 10);
+    items = items.slice(0, 10);
     titleEl.textContent = '최근 기록';
   }
-  listEl.innerHTML = items.map(ev => {
-    const d = new Date(ev.created_at);
-    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return `<li><span class="h-reason">${time} · ${unitLabel(ev.unit_id)} · ${REASON_LABEL[ev.reason] || ev.reason}</span><span class="h-pt">+${fmtPts(Number(ev.points))}</span></li>`;
+
+  listEl.innerHTML = items.map(it => {
+    const mmdd = it.date.slice(5).replace('-', '/');
+    if (it.kind === 'vocab') {
+      return `<li>
+        <span class="h-unit">📒 단어 공부 · ${mmdd}</span>
+        <span class="h-times">오늘 단어 ${it.v.words_reviewed}개 공부했어요</span>
+      </li>`;
+    }
+    const s = it.s;
+    return `<li>
+      <span class="h-unit">${unitLabel(s.unit_id)} · ${mmdd}</span>
+      <span class="h-times">🔊 듣기 ${fmtTime(s.listen_start_at)} · 1️⃣ 첫 문제 ${fmtTime(s.first_answer_at)} · 🏁 마지막 문제 ${fmtTime(s.last_answer_at)}</span>
+    </li>`;
   }).join('');
   emptyEl.hidden = items.length > 0;
+}
+
+function renderDayBreakdown() {
+  const key = selectedDate || dateKey(new Date());
+  const dayEvents = allHistory.filter(ev => dateKey(new Date(ev.created_at)) === key);
+  const vocabPts = dayEvents.filter(ev => ev.reason === 'vocab_daily').reduce((s, e) => s + Number(e.points), 0);
+  const unitPts = dayEvents.filter(ev => ev.reason !== 'vocab_daily').reduce((s, e) => s + Number(e.points), 0);
+  const total = unitPts + vocabPts;
+  const label = selectedDate || '오늘';
+  const el = document.getElementById('dayBreakdown');
+  el.innerHTML = total === 0
+    ? `<span class="db-day">${label}</span><span class="db-label">아직 포인트가 없어요</span>`
+    : `<span class="db-day">${label}</span>
+       <span class="db-label">📘 유닛 <b>+${fmtPts(unitPts)}</b></span>
+       <span class="db-label">📒 단어 <b>+${fmtPts(vocabPts)}</b></span>
+       <span class="db-label">합계 <b>+${fmtPts(total)}</b></span>`;
 }
 
 document.getElementById('calPrev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() - 1); renderCalendar(); });
@@ -348,6 +375,7 @@ document.getElementById('calGrid').addEventListener('click', (e) => {
   selectedDate = selectedDate === day.dataset.date ? null : day.dataset.date;
   renderCalendar();
   renderHistory();
+  renderDayBreakdown();
 });
 
 // ── 유닛 목록 (페이지당 10개) ──
@@ -372,7 +400,7 @@ let unitPoints = {};
 function unitCardHTML(u) {
   const id = 'unit' + String(u.n).padStart(2, '0');
   const p = unitProgress[id] || { done: 0, correct: 0 };
-  const progText = p.correct === 12 ? `✅ 완료! ${fmtPts(unitPoints[id] || 0)}` : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
+  const progText = p.correct === 12 ? `🎖️ 완료! ${fmtPts(unitPoints[id] || 0)}` : p.done > 0 ? `${p.done} / 12 풀었어요` : '아직 안 풀었어요';
   return `<a class="unit-card" href="${id}/index.html">
     <div class="card-top">
       <div class="badge"><span class="num">${String(u.n).padStart(2, '0')}</span><span class="label">UNIT</span></div>
@@ -414,8 +442,8 @@ document.getElementById('unitPager').addEventListener('click', (e) => {
 
 (async function () {
   await requireLogin();
-  const [summary, pointsSummary, history] = await Promise.all([
-    loadAllProgressSummary(), getPointsSummary(), getHistory()
+  const [summary, pointsSummary, history, sessions, vocabLog] = await Promise.all([
+    loadAllProgressSummary(), getPointsSummary(), getHistory(), getSessions(), getVocabDailyLog()
   ]);
   document.getElementById('s-units').textContent = UNITS.length;
   unitPoints = pointsSummary.perUnit;
@@ -442,8 +470,11 @@ document.getElementById('unitPager').addEventListener('click', (e) => {
   document.getElementById('recLevel').textContent = `Lv.${pointsSummary.level}`;
   renderBadges(pointsSummary.badgeUnits);
   allHistory = history;
+  allSessions = sessions;
+  allVocabLog = vocabLog;
   renderCalendar();
   renderHistory();
+  renderDayBreakdown();
 })();
 </script>
 </body>

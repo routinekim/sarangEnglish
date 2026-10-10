@@ -239,6 +239,11 @@ details p{font-size:15px;color:var(--ink);}
   <div id="translationBody"></div>
 </details>
 
+<div class="quicknav" style="margin-top:20px;margin-bottom:20px;">
+  <a class="qn-link" href="../index.html">📋 목록가기</a>
+  <a class="qn-link" href="../vocab.html">📒 단어장 암기하기</a>
+</div>
+
 </div>
 
 <div class="bar"><div class="in">
@@ -253,6 +258,7 @@ import { requireLogin } from '../js/login-ui.js';
 import { loadUnitContent, loadProgress, saveProgress, clearProgress } from '../js/supabase-client.js';
 import { getAwardedQuestionIds, awardPoints } from '../js/points-client.js';
 import { addVocabWord, removeVocabWord, getSavedWordSet } from '../js/vocab-client.js';
+import { logListenStart, logAnswer } from '../js/session-client.js';
 
 const UNIT_ID = 'unit11';
 let MC, TF, R2, FILL_HINT;
@@ -405,7 +411,7 @@ function grade(){
 }
 async function awardForGrade(newlyCorrect){
   const entries = newlyCorrect.map(id=>{
-    const first = !awardedQIds.has(id);
+    const first = !awardedQIds.has(id) && !(wrongCount[id] > 0);
     awardedQIds.add(id);
     return { question_id:id, reason: first?'correct':'retry_correct', points: first?1:0.5 };
   });
@@ -481,6 +487,7 @@ function setupTTS(){
     current=null;
   }
   function play(bar){
+    logListenStart(UNIT_ID);
     stop(); stopped=false; current=bar;
     const sents = [...document.getElementById(bar.dataset.target).querySelectorAll('.sent')].filter(s=>cleanText(s).length>1);
     bar.querySelector('.play').disabled=true; bar.querySelector('.play').textContent='🔊 읽는 중';
@@ -548,7 +555,7 @@ async function init(){
   document.querySelectorAll('select').forEach(s=>{
     const bank = [...s.closest('.q').querySelectorAll('.bank span')].map(b=>b.textContent);
     s.innerHTML = '<option value="">선택</option>' + bank.map(w=>`<option>${w}</option>`).join('');
-    s.addEventListener('change',()=>{ state[s.dataset.id]=s.value; s.classList.toggle('sel',!!s.value); update(); });
+    s.addEventListener('change',()=>{ state[s.dataset.id]=s.value; s.classList.toggle('sel',!!s.value); update(); logAnswer(UNIT_ID); });
   });
 
   ALL = [...MC.map(q=>q.id), ...TF.items.map(i=>i.id), R2.id, ...[...document.querySelectorAll('select')].map(s=>s.dataset.id)];
@@ -561,6 +568,7 @@ async function init(){
     state[q] = b.dataset.v;
     document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(o=>o.classList.toggle('sel', o===b));
     update();
+    logAnswer(UNIT_ID);
   });
 
   document.getElementById('grade').addEventListener('click', grade);

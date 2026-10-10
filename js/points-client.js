@@ -1,5 +1,25 @@
 import { supabase, getSession } from './supabase-client.js';
 
+export const VOCAB_DAILY_BONUS = 5;
+
+export async function awardVocabDailyBonus() {
+  const session = await getSession();
+  if (!session) return { awarded: false, points: 0 };
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('point_events').select('id')
+    .eq('user_id', session.user.id).eq('reason', 'vocab_daily')
+    .gte('created_at', todayStart.toISOString()).limit(1);
+  if (error) throw error;
+  if (data.length > 0) return { awarded: false, points: 0 };
+  const { error: insertError } = await supabase.from('point_events').insert({
+    user_id: session.user.id, unit_id: null, question_id: null,
+    reason: 'vocab_daily', points: VOCAB_DAILY_BONUS,
+  });
+  if (insertError) throw insertError;
+  return { awarded: true, points: VOCAB_DAILY_BONUS };
+}
+
 export async function getAwardedQuestionIds(unitId) {
   const session = await getSession();
   if (!session) return new Set();

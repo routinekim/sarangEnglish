@@ -74,6 +74,7 @@ body {
   flex: 1; font-family: "Jua"; font-size: 16px; border: 0; border-radius: 16px; padding: 14px 0; cursor: pointer;
 }
 .btn-dontknow { background: var(--wrong-soft, var(--coral-soft)); color: var(--coral); }
+.btn-unsure { background: var(--gold-soft); color: var(--gold); }
 .btn-know { background: var(--mint-soft); color: var(--mint); }
 .review-btns button:disabled { opacity: .35; cursor: default; }
 
@@ -126,12 +127,23 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 
 <script type="module">
 import { requireLogin } from './js/login-ui.js';
-import { getDueWords, getAllWords, reviewKnow, reviewDontKnow, deleteVocabWord } from './js/vocab-client.js';
+import { getTodaySession, getAllWords, reviewKnow, reviewUnsure, reviewDontKnow, deleteVocabWord, logWordReviewed } from './js/vocab-client.js';
+import { awardVocabDailyBonus } from './js/points-client.js';
 
 let queue = [];
-let totalToday = 0;
 let current = null;
 let flipped = false;
+let doneCount = 0;
+let sessionHadWords = false;
+let lastSpokenId = null;
+
+function speakWord(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
 
 function statusOf(box) {
   if (box <= 1) return { cls: 'status-new', label: '😵 외우는 중' };
@@ -148,15 +160,22 @@ function fmtDue(iso) {
   return `${days}일 후`;
 }
 
-function renderReview() {
+function renderReview(bonusPoints) {
   const area = document.getElementById('reviewArea');
   const prog = document.getElementById('reviewProgress');
   if (!current) {
-    area.innerHTML = `<div class="empty-review"><div class="big">🎉</div>오늘 복습할 단어를 다 끝냈어요!</div>`;
-    prog.textContent = totalToday > 0 ? `오늘 ${totalToday}개 복습 완료` : '';
+    const bonusLine = bonusPoints
+      ? `<div style="margin-top:8px;font-family:'Jua';color:var(--coral);font-size:15px;">🏆 포인트 +${bonusPoints}점 획득!</div>`
+      : '';
+    area.innerHTML = `<div class="empty-review"><div class="big">🎉</div>오늘의 단어 공부 완료!${bonusLine}</div>`;
+    prog.textContent = doneCount > 0 ? `오늘 ${doneCount}개 외웠어요` : '';
     return;
   }
-  prog.textContent = `오늘 복습: ${queue.length + 1} / ${totalToday} 남음`;
+  prog.textContent = `오늘 복습: 남은 단어 ${queue.length + 1}개`;
+  if (current.id !== lastSpokenId) {
+    speakWord(current.word);
+    lastSpokenId = current.id;
+  }
   area.innerHTML = `
     <div class="flashcard ${flipped ? 'flipped' : ''}" id="card">
       <div class="word">${current.word}</div>
@@ -166,28 +185,52 @@ function renderReview() {
     </div>
     <div class="review-btns">
       <button class="btn-dontknow" id="btnDontKnow" ${flipped ? '' : 'disabled'}>😵 몰라요</button>
+      <button class="btn-unsure" id="btnUnsure" ${flipped ? '' : 'disabled'}>🤔 애매해요</button>
       <button class="btn-know" id="btnKnow" ${flipped ? '' : 'disabled'}>✅ 알아요</button>
     </div>`;
   document.getElementById('card').addEventListener('click', () => { flipped = true; renderReview(); });
   if (flipped) {
-    document.getElementById('btnDontKnow').addEventListener('click', () => nextCard(false));
-    document.getElementById('btnKnow').addEventListener('click', () => nextCard(true));
+    document.getElementById('btnDontKnow').addEventListener('click', () => nextCard('dontknow'));
+    document.getElementById('btnUnsure').addEventListener('click', () => nextCard('unsure'));
+    document.getElementById('btnKnow').addEventListener('click', () => nextCard('know'));
   }
 }
 
-async function nextCard(knew) {
+async function nextCard(action) {
   const w = current;
-  if (knew) await reviewKnow(w.id, w.box);
-  else await reviewDontKnow(w.id);
+  try {
+    if (action === 'know') {
+      await reviewKnow(w.id, w.box);
+      doneCount++;
+    } else if (action === 'unsure') {
+      await reviewUnsure(w.id);
+      queue.push(w);
+    } else {
+      await reviewDontKnow(w.id);
+      queue.push(w);
+    }
+    await logWordReviewed();
+  } catch (err) {
+    console.error('review update failed', err);
+    alert('복습 결과 저장에 실패했어요: ' + (err.message || err));
+    return;
+  }
   current = queue.shift() || null;
   flipped = false;
-  renderReview();
+  if (!current && sessionHadWords) {
+    sessionHadWords = false;
+    const result = await awardVocabDailyBonus();
+    renderReview(result.awarded ? result.points : null);
+  } else {
+    renderReview();
+  }
   await refreshWordList();
 }
 
 async function startReview() {
-  queue = await getDueWords();
-  totalToday = queue.length;
+  queue = await getTodaySession();
+  doneCount = 0;
+  sessionHadWords = queue.length > 0;
   current = queue.shift() || null;
   flipped = false;
   renderReview();
@@ -212,15 +255,25 @@ async function refreshWordList() {
 document.getElementById('wordList').addEventListener('click', async (e) => {
   const btn = e.target.closest('.del');
   if (!btn) return;
-  await deleteVocabWord(btn.dataset.id);
-  await refreshWordList();
-  await startReview();
+  try {
+    await deleteVocabWord(btn.dataset.id);
+    await refreshWordList();
+    await startReview();
+  } catch (err) {
+    console.error('deleteVocabWord failed', err);
+    alert('삭제에 실패했어요: ' + (err.message || err));
+  }
 });
 
 (async function () {
   await requireLogin();
-  await startReview();
-  await refreshWordList();
+  try {
+    await startReview();
+    await refreshWordList();
+  } catch (err) {
+    console.error('vocab page load failed', err);
+    alert('단어장을 불러오지 못했어요: ' + (err.message || err));
+  }
 })();
 </script>
 </body>
