@@ -7,11 +7,11 @@ NE능률 **Junior Reading Expert Level 2** 수준·구성을 참고해 제작했
 
 | 유닛 | 주제 | 인터랙티브 | 교재(PDF) |
 |------|------|-----------|-----------|
-| Unit 01 | K-pop — RESCENE | [열기](unit01/index.html) | [다운로드](unit01/Unit01_RESCENE.pdf) |
+| Unit 01 | K-pop — RESCENE | [열기](unit.html?id=unit01) | [다운로드](pdf/Unit01_RESCENE.pdf) |
 
 ## 🎮 기능
 
-- 📖 **본문 음성 읽기** — ▶ 듣기 버튼으로 영어 원문 TTS, 문장 터치로 한 문장만 반복
+- 📖 **본문 음성 읽기** — ▶ 듣기 버튼으로 영어 원문 TTS, 본문을 누르면 멈추고, 문단을 누르면 그 문단부터 다시 읽기
 - ✏️ **터치로 문제 풀기** — 객관식, T/F, 단어 고르기 (총 21문항)
 - 💡 **힌트** — 유닛당 3회, 정답이 아닌 방향만 제공
 - ✅ **자동 채점** — 맞힌 문제는 잠기고 틀린 문제만 다시 풀기 가능
@@ -20,4 +20,4 @@ NE능률 **Junior Reading Expert Level 2** 수준·구성을 참고해 제작했
 ## 🌐 GitHub Pages로 열기
 
 저장소 Settings → Pages → Source: **main / root** 로 설정하면
-`https://routinekim.github.io/sarangEnglish/unit01/` 로 접속 가능합니다.
+`https://routinekim.github.io/sarangEnglish/unit.html?id=unit01` 로 접속 가능합니다.

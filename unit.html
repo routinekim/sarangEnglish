@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>사랑이의 Reading Expert — Unit 06 그림 그리기</title>
+<title>사랑이의 Reading Expert</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -165,12 +165,12 @@ details p{font-size:15px;color:var(--ink);}
 <div class="wrap">
 
 <div class="quicknav">
-  <a class="qn-link" href="../index.html">📋 목록가기</a>
-  <a class="qn-link" href="../vocab.html">📒 단어장 암기하기</a>
+  <a class="qn-link" href="index.html">📋 목록가기</a>
+  <a class="qn-link" href="vocab.html">📒 단어장 암기하기</a>
 </div>
 
 <header class="hero">
-  <p class="unit">UNIT 06 · Drawing</p>
+  <p class="unit" id="unitLabel"></p>
   <h1>사랑이의<br>Reading Expert</h1>
   <p>▶ 듣기로 본문을 들으면서 읽고, 답을 <b>터치</b>해서 고른 다음, 맨 아래 <b>채점하기</b>를 눌러 봐! 막히면 💡 힌트를 쓸 수 있어 (한 유닛에 <b>3번</b>). 총 <b>12문항</b>!</p>
   <div class="scentline" id="scent"><span></span><span></span><span></span><span></span><span></span></div>
@@ -240,8 +240,8 @@ details p{font-size:15px;color:var(--ink);}
 </details>
 
 <div class="quicknav" style="margin-top:20px;margin-bottom:20px;">
-  <a class="qn-link" href="../index.html">📋 목록가기</a>
-  <a class="qn-link" href="../vocab.html">📒 단어장 암기하기</a>
+  <a class="qn-link" href="index.html">📋 목록가기</a>
+  <a class="qn-link" href="vocab.html">📒 단어장 암기하기</a>
 </div>
 
 </div>
@@ -254,13 +254,16 @@ details p{font-size:15px;color:var(--ink);}
 </div></div>
 
 <script type="module">
-import { requireLogin } from '../js/login-ui.js';
-import { loadUnitContent, loadProgress, saveProgress, clearProgress } from '../js/supabase-client.js';
-import { getAwardedQuestionIds, awardPoints } from '../js/points-client.js';
-import { addVocabWord, removeVocabWord, getSavedWordSet } from '../js/vocab-client.js';
-import { logListenStart, logAnswer } from '../js/session-client.js';
+import { requireLogin } from './js/login-ui.js';
+import { loadUnitContent, loadProgress, saveProgress, clearProgress } from './js/supabase-client.js';
+import { getAwardedQuestionIds, awardPoints } from './js/points-client.js';
+import { addVocabWord, removeVocabWord, getSavedWordSet } from './js/vocab-client.js';
+import { logAnswer } from './js/session-client.js';
+import { setupTTS } from './js/tts.js';
+import { UNITS } from './js/units.js';
 
-const UNIT_ID = 'unit06';
+const UNIT_ID = new URLSearchParams(location.search).get('id');
+const UNIT = UNITS.find(u => 'unit' + String(u.n).padStart(2, '0') === UNIT_ID);
 let MC, TF, R2, FILL_HINT;
 const state = {};       // id -> chosen
 let locked = {};        // id -> true (맞아서 잠긴 문제)
@@ -449,86 +452,10 @@ function retryWrong(){
   const first = document.getElementById('q-'+wrongIds[0]) || document.querySelector(`select[data-id="${wrongIds[0]}"]`);
   if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
 }
-function setupTTS(){
-  const synth = window.speechSynthesis;
-  const bars = document.querySelectorAll('.audio');
-  if(!synth || !window.SpeechSynthesisUtterance){
-    bars.forEach(b=>{ b.querySelector('.warn').style.display='block'; b.querySelector('.play').disabled=true; });
-    return;
-  }
-  // 문장 단위로 쪼개서 span으로 감싸기 (문장 하이라이트용)
-  function wrapSentences(root){
-    root.querySelectorAll('p, td').forEach(el=>{
-      if(el.classList.contains('note')) return;
-      const txt = el.innerHTML;
-      if(el.tagName==='P' && el.classList.contains('info')){ // 줄바꿈 단위
-        el.innerHTML = txt.split('<br>').map(l=>`<span class="sent">${l}</span>`).join('<br>');
-        return;
-      }
-      const parts = txt.split(/(?<=[.!?]["”]?)\s+(?=[A-Z"“(ⓐⓑⓒⓓ<])/);
-      el.innerHTML = parts.map(pt=>`<span class="sent">${pt}</span>`).join(' ');
-    });
-  }
-  ['p1','p2'].forEach(id=>wrapSentences(document.getElementById(id)));
-
-  let current=null, rate=0.9, stopped=false;
-  function cleanText(el){
-    return el.textContent.replace(/[ⓐⓑⓒⓓ]/g,'').replace(/\(A\)/,'blank A').replace(/₩66,000/,'66,000 won').replace(/·/g,'').replace(/\s+/g,' ').trim();
-  }
-  function pickVoice(){
-    const vs = synth.getVoices();
-    return vs.find(v=>/^en[-_]US/i.test(v.lang) && /female|samantha|aria|jenny|zira|google us/i.test(v.name))
-        || vs.find(v=>/^en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
-  }
-  function stop(){
-    stopped=true; synth.cancel();
-    document.querySelectorAll('.sent.now').forEach(s=>s.classList.remove('now'));
-    bars.forEach(b=>{ b.querySelector('.play').disabled=false; b.querySelector('.play').textContent='▶ 듣기'; b.querySelector('.stop').disabled=true; });
-    current=null;
-  }
-  function play(bar){
-    logListenStart(UNIT_ID);
-    stop(); stopped=false; current=bar;
-    const sents = [...document.getElementById(bar.dataset.target).querySelectorAll('.sent')].filter(s=>cleanText(s).length>1);
-    bar.querySelector('.play').disabled=true; bar.querySelector('.play').textContent='🔊 읽는 중';
-    bar.querySelector('.stop').disabled=false;
-    const voice = pickVoice();
-    let i=0;
-    const next=()=>{
-      if(stopped || i>=sents.length){ if(!stopped) stop(); return; }
-      const el = sents[i++];
-      document.querySelectorAll('.sent.now').forEach(s=>s.classList.remove('now'));
-      el.classList.add('now');
-      el.scrollIntoView({block:'center', behavior:'smooth'});
-      const u = new SpeechSynthesisUtterance(cleanText(el));
-      u.lang='en-US'; u.rate=rate; if(voice) u.voice=voice;
-      u.onend = next; u.onerror = next;
-      synth.speak(u);
-    };
-    next();
-  }
-  bars.forEach(bar=>{
-    bar.querySelector('.play').addEventListener('click',()=>play(bar));
-    bar.querySelector('.stop').addEventListener('click',stop);
-    bar.querySelectorAll('.speed button').forEach(b=>b.addEventListener('click',()=>{
-      rate=parseFloat(b.dataset.rate);
-      document.querySelectorAll('.speed button').forEach(x=>x.classList.toggle('on', parseFloat(x.dataset.rate)===rate));
-      if(current) play(current);
-    }));
-  });
-  // 문장을 직접 터치하면 그 문장만 읽어 주기
-  document.body.addEventListener('click',e=>{
-    const s = e.target.closest('.sent'); if(!s || e.target.closest('.audio')) return;
-    stop(); stopped=false;
-    document.querySelectorAll('.sent.now').forEach(x=>x.classList.remove('now')); s.classList.add('now');
-    const u = new SpeechSynthesisUtterance(cleanText(s)); u.lang='en-US'; u.rate=rate; const v=pickVoice(); if(v) u.voice=v;
-    u.onend=()=>s.classList.remove('now'); synth.speak(u);
-  });
-  if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>{};
-  window.addEventListener('pagehide',()=>synth.cancel());
-}
 
 async function init(){
+  document.title = `사랑이의 Reading Expert — Unit ${UNIT_ID.slice(4)} ${UNIT.title}`;
+  document.getElementById('unitLabel').innerHTML = `UNIT ${UNIT_ID.slice(4)} · ${UNIT.topic}`;
   await requireLogin();
   const content = await loadUnitContent(UNIT_ID);
 
@@ -579,14 +506,14 @@ async function init(){
     location.reload();
   });
 
-  setupTTS();
+  setupTTS(UNIT_ID);
 
   await restore();
   if(Object.keys(locked).length && Object.keys(locked).length<TOTAL){ document.getElementById('grade').textContent='다시 채점하기'; }
   else if(Object.keys(locked).length===TOTAL){ document.body.classList.add('graded'); showResult(); }
 }
 
-init();
+if(UNIT) init(); else location.replace('index.html');
 </script>
 </body>
 </html>

@@ -68,6 +68,18 @@ body {
 .flashcard .hint { font-size: 12px; color: var(--muted); margin-top: 14px; }
 .flashcard.flipped .meaning { display: block; }
 .flashcard.flipped .hint { display: none; }
+.say { border: 0; background: var(--coral-soft); color: var(--coral); border-radius: 99px; font-size: 13px; padding: 5px 12px; cursor: pointer; font-family: inherit; }
+.flashcard .say-word { margin-top: 10px; }
+.flashcard .detail { display: none; width: 100%; margin-top: 12px; text-align: left; }
+.flashcard.flipped .detail { display: block; }
+.flashcard .detail .en-def { display: flex; align-items: flex-start; gap: 8px; background: var(--bg); border-radius: 12px; padding: 10px 12px; font-size: 15px; }
+.flashcard .detail .en-def span { flex: 1; min-width: 0; }
+.flashcard .detail .en-def .say { padding: 5px 9px; }
+.flashcard .examples { display: none; list-style: none; width: 100%; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); text-align: left; }
+.flashcard.flipped .examples { display: block; }
+.flashcard .examples li { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+.flashcard .examples .ex { flex: 1; min-width: 0; font-size: 15px; }
+.flashcard .examples .say { padding: 5px 9px; }
 
 .review-btns { display: flex; gap: 10px; margin-top: 14px; }
 .review-btns button {
@@ -83,7 +95,7 @@ body {
 
 /* ── word list ── */
 .wordlist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.wordlist li { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.wordlist li { cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 12px; padding: 10px 12px; }
 .wordlist .w { flex: 1; min-width: 0; }
 .wordlist .w .word { font-weight: 700; }
 .wordlist .w .meaning { font-size: 13px; color: var(--muted); }
@@ -129,6 +141,8 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 import { requireLogin } from './js/login-ui.js';
 import { getTodaySession, getAllWords, reviewKnow, reviewUnsure, reviewDontKnow, deleteVocabWord, logWordReviewed } from './js/vocab-client.js';
 import { awardVocabDailyBonus } from './js/points-client.js';
+import { EXAMPLES } from './js/vocab-examples.js';
+import { DETAILS } from './js/vocab-details.js';
 
 let queue = [];
 let current = null;
@@ -136,11 +150,12 @@ let flipped = false;
 let doneCount = 0;
 let sessionHadWords = false;
 let lastSpokenId = null;
+let allWords = [];
 
 function speakWord(text) {
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(text.replace(/\s*\(.*\)$/, '')); // "trigger (v.)" → "trigger"
   u.lang = 'en-US'; u.rate = 0.9;
   speechSynthesis.speak(u);
 }
@@ -176,19 +191,36 @@ function renderReview(bonusPoints) {
     speakWord(current.word);
     lastSpokenId = current.id;
   }
+  const examples = EXAMPLES[current.word] || [];
+  const enDef = DETAILS[current.word];
   area.innerHTML = `
     <div class="flashcard ${flipped ? 'flipped' : ''}" id="card">
       <div class="word">${current.word}</div>
+      <button class="say say-word" data-say="word">🔊 다시 듣기</button>
       <div class="meaning">${current.meaning}</div>
+      ${enDef ? `<div class="detail">
+        <div class="en-def"><span>${enDef}</span><button class="say" data-say="def" aria-label="영어 설명 듣기">🔊</button></div>
+      </div>` : ''}
       <div class="unit-tag">${current.unit_id ? current.unit_id.replace('unit', 'Unit ') : ''}</div>
       <div class="hint">탭해서 뜻 보기</div>
+      <ul class="examples">${examples.map((en, i) => `
+        <li><div class="ex">${en}</div><button class="say" data-say="${i}" aria-label="문장 듣기">🔊</button></li>`).join('')}
+      </ul>
     </div>
     <div class="review-btns">
       <button class="btn-dontknow" id="btnDontKnow" ${flipped ? '' : 'disabled'}>😵 몰라요</button>
       <button class="btn-unsure" id="btnUnsure" ${flipped ? '' : 'disabled'}>🤔 애매해요</button>
       <button class="btn-know" id="btnKnow" ${flipped ? '' : 'disabled'}>✅ 알아요</button>
     </div>`;
-  document.getElementById('card').addEventListener('click', () => { flipped = true; renderReview(); });
+  document.getElementById('card').addEventListener('click', (e) => {
+    const say = e.target.closest('.say');
+    if (say) {
+      const k = say.dataset.say;
+      speakWord(k === 'word' ? current.word : k === 'def' ? enDef : examples[k]);
+      return;
+    }
+    flipped = true; renderReview();
+  });
   if (flipped) {
     document.getElementById('btnDontKnow').addEventListener('click', () => nextCard('dontknow'));
     document.getElementById('btnUnsure').addEventListener('click', () => nextCard('unsure'));
@@ -237,7 +269,7 @@ async function startReview() {
 }
 
 async function refreshWordList() {
-  const words = await getAllWords();
+  const words = allWords = await getAllWords();
   const listEl = document.getElementById('wordList');
   const emptyEl = document.getElementById('wordListEmpty');
   listEl.innerHTML = words.map(w => {
@@ -254,7 +286,21 @@ async function refreshWordList() {
 
 document.getElementById('wordList').addEventListener('click', async (e) => {
   const btn = e.target.closest('.del');
-  if (!btn) return;
+  if (!btn) {
+    // 단어를 누르면 그 단어를 오늘의 복습 카드로 띄운다 (보던 카드는 다음 차례로)
+    const li = e.target.closest('li');
+    const picked = li && allWords.find(w => String(w.id) === li.dataset.id);
+    if (!picked) return;
+    if (!current || current.id !== picked.id) {
+      queue = queue.filter(w => w.id !== picked.id);
+      if (current) queue.unshift(current);
+      current = picked;
+      flipped = false;
+      renderReview();
+    }
+    document.getElementById('reviewArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   try {
     await deleteVocabWord(btn.dataset.id);
     await refreshWordList();
