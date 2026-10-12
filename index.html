@@ -173,6 +173,9 @@ body {
 .history li { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; background: var(--bg); border-radius: 10px; padding: 7px 10px; }
 .history .h-unit { font-size: 13.5px; font-weight: 700; color: var(--ink); }
 .history .h-times { font-size: 12px; color: var(--muted); }
+.history li.h-day { flex-direction: row; justify-content: space-between; align-items: baseline; background: none; padding: 6px 2px 0; }
+.history .h-date { font-family: "Jua"; font-size: 14px; color: var(--plum); }
+.history .h-total { font-family: "Jua"; font-size: 13px; color: var(--coral); }
 .history .h-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0; }
 
 /* ── pagination ── */
@@ -267,7 +270,8 @@ let selectedDate = null;
 function fmtTime(iso) {
   if (!iso) return '-';
   const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const h = d.getHours();
+  return `${h < 12 ? '오전' : '오후'}${h % 12 || 12}시${d.getMinutes()}분`;
 }
 
 function renderBadges(badgeUnits) {
@@ -319,38 +323,68 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML = html;
 }
 
+const RECENT_DAYS = 7;
+const SEC_PER_WORD = 5;
+function diffSec(from, to) {
+  if (!from || !to) return 0;
+  return Math.max(0, (new Date(to) - new Date(from)) / 1000);
+}
+const LISTEN_SEC = 120;
+// 공부시간(초): 유닛 = 듣기(들었으면 2분) + 풀이(첫 문제→마지막 문제), 단어 = 개수 × 5초
+function itemSeconds(it) {
+  if (it.kind === 'vocab') return it.v.words_reviewed * SEC_PER_WORD;
+  const s = it.s;
+  return (s.listen_start_at ? LISTEN_SEC : 0) + diffSec(s.first_answer_at, s.last_answer_at);
+}
+function fmtDuration(sec) {
+  sec = Math.round(sec);
+  if (sec < 60) return `${sec}초`;
+  const min = Math.round(sec / 60);
+  return min < 60 ? `${min}분` : `${Math.floor(min / 60)}시간 ${min % 60}분`;
+}
+
 function renderHistory() {
   const listEl = document.getElementById('histList');
   const emptyEl = document.getElementById('histEmpty');
   const titleEl = document.getElementById('histTitle');
 
-  let unitItems = allSessions.map(s => ({ date: s.session_date, kind: 'unit', s }));
+  // 문제를 하나도 안 푼(듣기만 한) 세션은 기록에서 뺀다
+  let unitItems = allSessions.filter(s => s.first_answer_at).map(s => ({ date: s.session_date, kind: 'unit', s }));
   let vocabItems = allVocabLog.map(v => ({ date: v.log_date, kind: 'vocab', v }));
-  let items = [...unitItems, ...vocabItems].sort((a, b) => b.date.localeCompare(a.date));
+  let items = [...unitItems, ...vocabItems];
+
+  // 날짜별로 묶기 (최신 날짜부터)
+  const byDate = {};
+  items.forEach(it => { (byDate[it.date] = byDate[it.date] || []).push(it); });
+  let dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
 
   if (selectedDate) {
-    items = items.filter(it => it.date === selectedDate);
+    dates = dates.filter(d => d === selectedDate);
     titleEl.textContent = `${selectedDate} 기록`;
   } else {
-    items = items.slice(0, 10);
+    dates = dates.slice(0, RECENT_DAYS);
     titleEl.textContent = '최근 기록';
   }
 
-  listEl.innerHTML = items.map(it => {
-    const mmdd = it.date.slice(5).replace('-', '/');
-    if (it.kind === 'vocab') {
+  listEl.innerHTML = dates.map(date => {
+    const dayItems = byDate[date];
+    const totalSec = dayItems.reduce((sum, it) => sum + itemSeconds(it), 0);
+    const rows = dayItems.map(it => {
+      if (it.kind === 'vocab') {
+        return `<li>
+          <span class="h-unit">📒 단어 공부</span>
+          <span class="h-times">단어 ${it.v.words_reviewed}개 공부했어요 · ⏱ ${fmtDuration(itemSeconds(it))}</span>
+        </li>`;
+      }
+      const s = it.s;
       return `<li>
-        <span class="h-unit">📒 단어 공부 · ${mmdd}</span>
-        <span class="h-times">오늘 단어 ${it.v.words_reviewed}개 공부했어요</span>
+        <span class="h-unit">${unitLabel(s.unit_id)}</span>
+        <span class="h-times">🔊 듣기 ${fmtTime(s.listen_start_at)} · 1️⃣ 첫 문제 ${fmtTime(s.first_answer_at)} · 🏁 마지막 문제 ${fmtTime(s.last_answer_at)} · ⏱ ${fmtDuration(itemSeconds(it))}</span>
       </li>`;
-    }
-    const s = it.s;
-    return `<li>
-      <span class="h-unit">${unitLabel(s.unit_id)} · ${mmdd}</span>
-      <span class="h-times">🔊 듣기 ${fmtTime(s.listen_start_at)} · 1️⃣ 첫 문제 ${fmtTime(s.first_answer_at)} · 🏁 마지막 문제 ${fmtTime(s.last_answer_at)}</span>
-    </li>`;
+    }).join('');
+    return `<li class="h-day"><span class="h-date">${date.slice(5).replace('-', '/')}</span><span class="h-total">총 공부시간 ${fmtDuration(totalSec)}</span></li>${rows}`;
   }).join('');
-  emptyEl.hidden = items.length > 0;
+  emptyEl.hidden = dates.length > 0;
 }
 
 function renderDayBreakdown() {
