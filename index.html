@@ -88,18 +88,20 @@ body {
 .unit-card .info { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
 .unit-card .topic { font-size: 12px; color: var(--muted); }
 .unit-card .title { font-family: "Jua"; font-size: 18px; color: var(--ink); line-height: 1.2; }
-.unit-card .desc { font-size: 13px; color: var(--muted); }
 .unit-card .arrow { align-self: center; padding-right: 16px; color: var(--coral); font-size: 20px; }
-.unit-card .card-bottom {
+.unit-card .card-top .chip { align-self: center; flex-shrink: 0; margin-right: 10px; }
+.unit-card .card-sentence {
   border-top: 1.5px dashed var(--line);
-  display: flex; gap: 6px; padding: 10px 14px; flex-wrap: wrap;
+  padding: 10px 14px; display: flex; flex-direction: column; gap: 3px;
 }
+.unit-card .card-sentence .lb { font-family: "Jua"; font-size: 12px; color: var(--plum); }
+.unit-card .card-sentence .say { margin-left: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--plum); border-radius: 99px; padding: 2px 9px; font-family: "Jua"; font-size: 12px; cursor: pointer; }
+.unit-card .card-sentence .en { font-size: 14px; color: var(--ink); line-height: 1.45; }
 .chip {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--mint-soft); color: var(--mint);
   border-radius: 99px; padding: 3px 10px; font-size: 12px;
 }
-.chip.orange { background: var(--gold-soft); color: var(--gold); }
 .chip.pink { background: var(--coral-soft); color: var(--coral); }
 
 /* ── coming soon card ── */
@@ -256,7 +258,7 @@ import { loadAllProgressSummary } from './js/supabase-client.js';
 import { getPointsSummary, getHistory } from './js/points-client.js';
 import { getSessions } from './js/session-client.js';
 import { getVocabDailyLog } from './js/vocab-client.js';
-import { UNITS } from './js/units.js';
+import { UNITS } from './js/units.js?v=2'; // units.js를 고치면 숫자를 올려서 브라우저 캐시를 피한다
 
 function unitLabel(id) { return 'Unit ' + id.replace('unit', ''); }
 function fmtPts(p) { return (p % 1 === 0 ? p : p.toFixed(1)) + '점'; }
@@ -430,14 +432,13 @@ function unitCardHTML(u) {
       <div class="info">
         <span class="topic">${u.topic}</span>
         <span class="title">${u.title}</span>
-        <span class="desc">Reading 1 · Reading 2 · 총 12문항</span>
       </div>
+      <span class="chip${isDone ? '' : ' pink'}">${progText}</span>
       <span class="arrow">›</span>
     </div>
-    <div class="card-bottom">
-      <span class="chip">📖 TTS 듣기</span>
-      <span class="chip orange">💡 힌트 3회</span>
-      <span class="chip pink">${progText}</span>
+    <div class="card-sentence">
+      <span class="lb">📝 오늘의 외울 문장 <button class="say" data-say="${u.n}">🔊 듣기</button></span>
+      <span class="en">${u.sentence}</span>
     </div>
   </a>`;
 }
@@ -455,6 +456,18 @@ function renderUnitPage(page) {
   html += `<button class="pg-btn" data-page="${page + 1}" ${page === totalPages ? 'disabled' : ''}>›</button>`;
   pagerEl.innerHTML = html;
 }
+
+// 외울 문장 듣기 — 카드가 링크라서 유닛 페이지로 넘어가지 않게 막는다
+document.getElementById('unitList').addEventListener('click', (e) => {
+  const btn = e.target.closest('.say');
+  if (!btn) return;
+  e.preventDefault();
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(UNITS.find(x => x.n === Number(btn.dataset.say)).sentence);
+  u.lang = 'en-US'; u.rate = 0.9;
+  speechSynthesis.speak(u);
+});
 
 document.getElementById('unitPager').addEventListener('click', (e) => {
   const btn = e.target.closest('.pg-btn');
