@@ -35,7 +35,7 @@ export async function getAllWords() {
   const session = await getSession();
   if (!session) return [];
   const { data, error } = await supabase
-    .from('vocab_words').select('id, word, meaning, unit_id, box, due_at')
+    .from('vocab_words').select('id, word, meaning, unit_id, box, due_at, created_at')
     .eq('user_id', session.user.id)
     .order('due_at', { ascending: true });
   if (error) throw error;
@@ -44,16 +44,25 @@ export async function getAllWords() {
 
 const DAILY_TARGET = 25; // 약 5분 분량
 
+// 오늘(기기 날짜 기준) 단어장에 추가한 단어인지
+export function isAddedToday(w) {
+  return new Date(w.created_at).toDateString() === new Date().toDateString();
+}
+
 export async function getTodaySession() {
   const all = await getAllWords();
   const now = Date.now();
-  const due = all.filter(w => new Date(w.due_at).getTime() <= now)
+  // 오늘 추가한 단어를 맨 먼저 넣는다
+  const today = all.filter(isAddedToday);
+  const rest = all.filter(w => !isAddedToday(w));
+  const due = rest.filter(w => new Date(w.due_at).getTime() <= now)
     .sort((a, b) => a.box - b.box || new Date(a.due_at) - new Date(b.due_at));
-  if (due.length >= DAILY_TARGET) return due.slice(0, DAILY_TARGET);
+  const picked = today.concat(due);
+  if (picked.length >= DAILY_TARGET) return picked.slice(0, DAILY_TARGET);
   // 오늘 복습할 단어가 목표보다 적으면, 아직 때가 안 된 단어를 당겨와서 분량을 채운다
-  const notDue = all.filter(w => new Date(w.due_at).getTime() > now)
+  const notDue = rest.filter(w => new Date(w.due_at).getTime() > now)
     .sort((a, b) => new Date(a.due_at) - new Date(b.due_at));
-  return due.concat(notDue.slice(0, DAILY_TARGET - due.length));
+  return picked.concat(notDue.slice(0, DAILY_TARGET - picked.length));
 }
 
 export async function reviewKnow(id, box) {

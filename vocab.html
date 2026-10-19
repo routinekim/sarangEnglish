@@ -139,7 +139,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 
 <script type="module">
 import { requireLogin } from './js/login-ui.js';
-import { getTodaySession, getAllWords, reviewKnow, reviewUnsure, reviewDontKnow, deleteVocabWord, logWordReviewed } from './js/vocab-client.js';
+import { getTodaySession, getAllWords, reviewKnow, reviewUnsure, reviewDontKnow, deleteVocabWord, logWordReviewed, isAddedToday } from './js/vocab-client.js';
 import { awardVocabDailyBonus } from './js/points-client.js';
 import { EXAMPLES } from './js/vocab-examples.js';
 import { DETAILS } from './js/vocab-details.js';
@@ -175,7 +175,32 @@ function fmtDue(iso) {
   return `${days}일 후`;
 }
 
+// 복습하던 순서를 기억해 두었다가, 다른 페이지에 갔다 와도 같은 날이면 이어서 한다
+const SAVE_KEY = 'vocabReview';
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function saveReview() {
+  try {
+    if (!current) { localStorage.removeItem(SAVE_KEY); return; }
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      date: todayStr(), ids: [current.id, ...queue.map(w => w.id)], doneCount
+    }));
+  } catch (e) {}
+}
+
+function loadSaved() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY));
+    return s && s.date === todayStr() ? s : null;
+  } catch (e) { return null; }
+}
+
 function renderReview(bonusPoints) {
+  saveReview();
   const area = document.getElementById('reviewArea');
   const prog = document.getElementById('reviewProgress');
   if (!current) {
@@ -260,12 +285,34 @@ async function nextCard(action) {
 }
 
 async function startReview() {
-  queue = await getTodaySession();
-  // 카드 순서를 무작위로 섞는다
-  for (let i = queue.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [queue[i], queue[j]] = [queue[j], queue[i]];
+  const saved = loadSaved();
+  if (saved) {
+    // 저장된 순서대로 최신 단어 정보를 다시 채운다 (지운 단어는 빠진다)
+    const all = await getAllWords();
+    const byId = new Map(all.map(w => [w.id, w]));
+    // 복습하던 중에 오늘 새로 추가한 단어는 맨 앞에 끼워 넣는다
+    const added = all.filter(w => isAddedToday(w) && !saved.ids.includes(w.id));
+    const words = added.concat(saved.ids.map(id => byId.get(id)).filter(Boolean));
+    if (words.length) {
+      queue = words;
+      doneCount = saved.doneCount || 0;
+      sessionHadWords = true;
+      current = queue.shift();
+      flipped = false;
+      renderReview();
+      return;
+    }
   }
+  const session = await getTodaySession();
+  // 카드 순서를 무작위로 섞되, 오늘 추가한 단어가 먼저 나오게 따로 섞는다
+  const shuffle = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+  queue = shuffle(session.filter(isAddedToday)).concat(shuffle(session.filter(w => !isAddedToday(w))));
   doneCount = 0;
   sessionHadWords = queue.length > 0;
   current = queue.shift() || null;
