@@ -441,7 +441,7 @@ function unitCardHTML(u) {
       <span class="arrow">›</span>
     </div>
     <div class="card-sentence">
-      <span class="lb">📝 오늘의 외울 문장 <button class="say" data-say="${u.n}">🔊 듣기</button></span>
+      <span class="lb">📝 오늘의 외울 문장 <button class="say" data-say="${u.n}">🔊 ${SAY_REPEAT}번 듣기</button></span>
       <span class="en">${u.sentence}</span>
     </div>
   </a>`;
@@ -461,21 +461,46 @@ function renderUnitPage(page) {
   pagerEl.innerHTML = html;
 }
 
-// 외울 문장 듣기 — 카드가 링크라서 유닛 페이지로 넘어가지 않게 막는다
+// 외울 문장 10번 듣기 — 반복 중에 다시 누르면 멈춘다
+const SAY_REPEAT = 10;
+let sayBtn = null;  // 지금 반복 중인 버튼
+
+function stopSay() {
+  if (sayBtn) sayBtn.textContent = `🔊 ${SAY_REPEAT}번 듣기`;
+  sayBtn = null;
+  if (window.speechSynthesis) speechSynthesis.cancel();
+}
+
+// 카드가 링크라서 유닛 페이지로 넘어가지 않게 막는다
 document.getElementById('unitList').addEventListener('click', (e) => {
   const btn = e.target.closest('.say');
   if (!btn) return;
   e.preventDefault();
   if (!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(UNITS.find(x => x.n === Number(btn.dataset.say)).sentence);
-  u.lang = 'en-US'; u.rate = 0.9;
-  speechSynthesis.speak(u);
+  const wasPlaying = sayBtn === btn;
+  stopSay();
+  if (wasPlaying) return;
+
+  sayBtn = btn;
+  const sentence = UNITS.find(x => x.n === Number(btn.dataset.say)).sentence;
+  let count = 0;
+  const next = () => {
+    if (sayBtn !== btn) return;
+    if (count === SAY_REPEAT) { stopSay(); return; }
+    count++;
+    btn.textContent = `■ 멈추기 (${count}/${SAY_REPEAT})`;
+    const u = new SpeechSynthesisUtterance(sentence);
+    u.lang = 'en-US'; u.rate = 0.9;
+    u.onend = next;
+    speechSynthesis.speak(u);
+  };
+  next();
 });
 
 document.getElementById('unitPager').addEventListener('click', (e) => {
   const btn = e.target.closest('.pg-btn');
   if (!btn || btn.disabled) return;
+  stopSay();
   renderUnitPage(Number(btn.dataset.page));
   document.getElementById('unitList').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
