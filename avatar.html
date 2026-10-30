@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 캐릭터 꾸미기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FBF4F8; --paper: #FFFFFF; --ink: #2C1F33; --muted: #7A6A82;
+  --plum: #5B2A6B; --coral: #FF6F91; --coral-soft: #FFE1E8;
+  --mint: #3FB9A5; --mint-soft: #DDF5F0; --line: #E9DCE6;
+  --gold: #F4A623; --gold-soft: #FFF3D6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1522; --paper: #2A1E30; --ink: #F4ECF5; --muted: #B9A9C2;
+    --plum: #D9B3E8; --coral: #FF8AA6; --coral-soft: #4A2634;
+    --mint: #6EDBC8; --mint-soft: #1F4038; --line: #43344A;
+    --gold: #FFD166; --gold-soft: #3D2E00;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", system-ui, sans-serif; font-size: 16px; line-height: 1.5; min-height: 100vh; }
+.jua { font-family: "Jua", "Noto Sans KR", sans-serif; font-weight: 400; }
+.wrap { max-width: 640px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 60px; }
+.topnav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.topnav a { color: var(--plum); text-decoration: none; font-family: "Jua"; font-size: 15px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 99px; padding: 5px 14px; }
+.topnav h1 { font-family: "Jua"; font-size: 22px; color: var(--plum); }
+
+.stage { background: var(--paper); border: 1.5px solid var(--line); border-radius: 24px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.stage .big { width: 100%; max-width: 280px; }
+.stage .big svg { width: 100%; height: auto; display: block; border-radius: 18px; }
+.wallet { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.chip { border-radius: 99px; padding: 4px 12px; font-size: 13px; }
+.chip.money { background: var(--gold-soft); color: var(--ink); font-weight: 700; }
+.chip.money b { font-family: "Jua"; font-size: 18px; color: var(--gold); font-weight: 400; }
+.chip.earned { background: var(--bg); color: var(--muted); }
+
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding: 14px 2px 10px; scrollbar-width: none; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 99px; padding: 6px 14px; font-family: "Jua"; font-size: 15px; cursor: pointer; }
+.tab.on { background: var(--plum); border-color: var(--plum); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tab.on { color: #1E1522; } }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.item { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 6px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; font: inherit; color: inherit; position: relative; }
+.item:active { transform: scale(.97); }
+.item.on { border-color: var(--coral); box-shadow: 0 0 0 3px var(--coral-soft); }
+.item .thumb { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.item .thumb svg { width: 100%; height: 100%; }
+.item.locked .thumb { opacity: .55; }
+.item .nm { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.25; }
+.item .st { font-size: 12px; color: var(--muted); }
+.item .st.price { color: var(--gold); font-weight: 700; }
+.item .st.wear { color: var(--coral); font-weight: 700; }
+.item .lock { position: absolute; top: 8px; right: 8px; font-size: 14px; }
+.none-thumb { font-size: 30px; }
+
+.modal { position: fixed; inset: 0; background: rgba(30,21,34,.5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal[hidden] { display: none; }
+.modal .box { background: var(--paper); border-radius: 22px; padding: 20px; max-width: 320px; width: 100%; text-align: center; }
+.modal .box .pv { width: 140px; margin: 0 auto 8px; }
+.modal .box .pv svg { width: 100%; height: auto; border-radius: 14px; }
+.modal h3 { font-family: "Jua"; font-size: 20px; color: var(--plum); margin-bottom: 4px; }
+.modal p { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+.modal .btns { display: flex; gap: 8px; }
+.modal button { flex: 1; border: 0; border-radius: 99px; padding: 10px; font-family: "Jua"; font-size: 16px; cursor: pointer; }
+.modal .yes { background: var(--coral); color: #fff; }
+.modal .no { background: var(--bg); color: var(--ink); }
+.toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); background: var(--plum); color: #fff; padding: 8px 18px; border-radius: 99px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 60; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .toast { color: #1E1522; } }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topnav">
+    <a href="index.html">← 홈</a>
+    <h1>내 캐릭터 꾸미기</h1>
+    <span style="width:62px"></span>
+  </div>
+
+  <div class="stage">
+    <div class="big" id="big"></div>
+    <div class="wallet">
+      <span class="chip money">💰 쓸 수 있는 점수 <b id="balance">0</b>점</span>
+      <span class="chip earned" id="earned">모은 점수 0점</span>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="box">
+    <div class="pv" id="mPreview"></div>
+    <h3 id="mTitle"></h3>
+    <p id="mText"></p>
+    <div class="btns"><button class="no" id="mNo">아니요</button><button class="yes" id="mYes">살래요!</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { requireLogin } from './js/login-ui.js';
+import { getPointsSummary } from './js/points-client.js';
+import { CATEGORIES, ITEMS, renderAvatar, loadAvatar, saveEquipped, buyItem, toggleAcc } from './js/avatar.js';
+
+const HEAD_SLOTS = new Set(['face', 'skin', 'eyes', 'brows', 'nose', 'mouth', 'cheek', 'hair', 'hairColor', 'hat']);
+let equipped, owned, earned = 0, spent = 0, cat = CATEGORIES[0];
+const fmt = n => (Math.round(n * 10) / 10).toLocaleString('ko-KR');
+const $ = id => document.getElementById(id);
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// 아이템을 입혀 본 모습 (미리보기용)
+function tryOn(slot, key) {
+  const eq = { ...equipped, acc: [...equipped.acc] };
+  if (slot === 'acc') { if (!eq.acc.includes(key)) eq.acc = toggleAcc(eq.acc, key); }
+  else eq[slot] = key;
+  return eq;
+}
+const isOn = (slot, key) => slot === 'acc' ? equipped.acc.includes(key) : equipped[slot] === key;
+
+function renderTop() {
+  $('big').innerHTML = renderAvatar(equipped);
+  $('balance').textContent = fmt(earned - spent);
+  $('earned').textContent = `모은 점수 ${fmt(earned)}점`;
+}
+
+function renderTabs() {
+  $('tabs').innerHTML = CATEGORIES.map(c =>
+    `<button class="tab${c === cat ? ' on' : ''}" data-slot="${c.slot}">${c.label}</button>`).join('');
+}
+
+function renderGrid() {
+  const view = HEAD_SLOTS.has(cat.slot) ? 'head' : 'full';
+  let html = '';
+  if (cat.optional) {
+    const on = equipped[cat.slot] == null;
+    html += `<button class="item${on ? ' on' : ''}" data-key="">
+      <div class="thumb">${renderAvatar({ ...equipped, [cat.slot]: null }, { view })}</div>
+      <span class="nm">없음</span><span class="st${on ? ' wear' : ''}">${on ? '착용 중' : '벗기'}</span></button>`;
+  }
+  for (const it of ITEMS.filter(i => i.slot === cat.slot)) {
+    const have = it.price === 0 || owned.has(it.id);
+    const on = isOn(it.slot, it.key);
+    const st = on ? `<span class="st wear">착용 중</span>`
+      : have ? `<span class="st">${it.price === 0 ? '무료' : '보유'}</span>`
+      : `<span class="st price">💰 ${it.price}점</span>`;
+    html += `<button class="item${on ? ' on' : ''}${have ? '' : ' locked'}" data-key="${it.key}">
+      ${have ? '' : '<span class="lock">🔒</span>'}
+      <div class="thumb">${renderAvatar(tryOn(it.slot, it.key), { view })}</div>
+      <span class="nm">${it.name}</span>${st}</button>`;
+  }
+  $('grid').innerHTML = html;
+}
+
+function renderAll() { renderTop(); renderTabs(); renderGrid(); }
+
+let saveTimer;
+function persist() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try { await saveEquipped(equipped); }
+    catch (e) { console.error(e); toast('저장에 실패했어요. 다시 해 볼래?'); }
+  }, 400);
+}
+
+function equip(slot, key) {
+  if (slot === 'acc') {
+    equipped.acc = toggleAcc(equipped.acc, key); // 같은 손에 든 물건은 바꿔 들기
+  } else if (key === '' || (cat.optional && equipped[slot] === key)) {
+    equipped[slot] = null; // 선택한 걸 한 번 더 누르면 벗기
+  } else {
+    equipped[slot] = key;
+  }
+  renderAll(); persist();
+}
+
+function ask({ item }) {
+  const bal = earned - spent;
+  $('mPreview').innerHTML = renderAvatar(tryOn(item.slot, item.key), { view: HEAD_SLOTS.has(item.slot) ? 'head' : 'full' });
+  $('mTitle').textContent = item.name;
+  const yes = $('mYes');
+  if (bal >= item.price) {
+    $('mText').textContent = `${item.price}점으로 살까요? (사고 나면 ${fmt(bal - item.price)}점 남아요)`;
+    yes.hidden = false; $('mNo').textContent = '아니요';
+  } else {
+    $('mText').textContent = `점수가 ${fmt(item.price - bal)}점 모자라요. 유닛 문제를 풀어서 점수를 모아 봐!`;
+    yes.hidden = true; $('mNo').textContent = '알겠어요';
+  }
+  $('modal').hidden = false;
+  return new Promise(res => {
+    yes.onclick = () => { $('modal').hidden = true; res(true); };
+    $('mNo').onclick = () => { $('modal').hidden = true; res(false); };
+  });
+}
+
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  cat = CATEGORIES.find(c => c.slot === b.dataset.slot);
+  renderTabs(); renderGrid();
+});
+
+$('grid').addEventListener('click', async e => {
+  const b = e.target.closest('.item'); if (!b) return;
+  const key = b.dataset.key;
+  if (key === '') return equip(cat.slot, '');
+  const item = ITEMS.find(i => i.slot === cat.slot && i.key === key);
+  if (item.price === 0 || owned.has(item.id)) return equip(cat.slot, key);
+  if (!(await ask({ item }))) return;
+  try {
+    const { balance } = await buyItem(item.id);
+    owned.add(item.id); spent = earned - balance;
+    toast(`🎉 ${item.name} 획득!`);
+    equip(cat.slot, key);
+  } catch (err) {
+    console.error(err); toast(err.message || '구매에 실패했어요.');
+  }
+});
+
+(async function () {
+  await requireLogin();
+  const [{ total }, av] = await Promise.all([getPointsSummary(), loadAvatar()]);
+  earned = total; equipped = av.equipped; owned = av.owned; spent = av.spent;
+  renderAll();
+})().catch(e => { console.error(e); toast('캐릭터를 불러오지 못했어요.'); });
+</script>
+</body>
+</html>

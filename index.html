@@ -49,6 +49,9 @@ body {
   pointer-events: none;
 }
 .hero .emoji { font-size: 52px; line-height: 1; margin-bottom: 12px; display: block; }
+.hero-avatar { display: block; width: 150px; margin: 0 auto 6px; position: relative; z-index: 1; }
+.hero-avatar svg { width: 100%; height: auto; display: block; border-radius: 22px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.avatar-hint { display: inline-block; position: relative; z-index: 1; color: #fff; text-decoration: none; font-size: 12px; background: rgba(255,255,255,.2); border-radius: 99px; padding: 2px 12px; margin-bottom: 12px; }
 .hero h1 { font-family: "Jua"; font-size: 32px; letter-spacing: .02em; margin-bottom: 6px; }
 .hero p { font-size: 15px; opacity: .88; }
 .hero .sub { display: inline-block; background: rgba(255,255,255,.18); border-radius: 99px; padding: 3px 14px; font-size: 13px; margin-top: 10px; }
@@ -123,7 +126,7 @@ body {
 .stat .key { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
 /* ── shortcuts row ── */
-.shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+.shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
 .shortcut {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   text-decoration: none; background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
@@ -198,7 +201,8 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 <body>
 
 <header class="hero">
-  <span class="emoji">🎀</span>
+  <a class="hero-avatar" href="avatar.html" id="heroAvatar" aria-label="내 캐릭터 꾸미기"></a>
+  <a class="avatar-hint" href="avatar.html">✨ 눌러서 꾸미기</a>
   <h1 class="jua">사랑이의 Reading Expert</h1>
   <p>리센느를 사랑하는 사랑이를 위한 영어 독해 교재</p>
   <span class="sub">Junior Reading Expert Level 2 수준</span>
@@ -242,6 +246,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
     <a class="shortcut" href="points.html"><span class="ic">🏆</span><span class="lb">포인트 규칙</span></a>
     <a class="shortcut" href="interests.html"><span class="ic">💭</span><span class="lb">관심사 저장</span></a>
     <a class="shortcut" href="vocab.html"><span class="ic">📒</span><span class="lb">단어장 암기</span></a>
+    <a class="shortcut" href="avatar.html"><span class="ic">👗</span><span class="lb">캐릭터 꾸미기</span></a>
   </div>
 
   <div class="section-head">
@@ -260,6 +265,7 @@ footer { text-align: center; padding: 20px 0 calc(20px + env(safe-area-inset-bot
 import { requireLogin } from './js/login-ui.js';
 import { loadAllProgressSummary } from './js/supabase-client.js';
 import { getPointsSummary, getHistory } from './js/points-client.js';
+import { mountAvatar } from './js/avatar.js';
 import { getSessions } from './js/session-client.js';
 import { getVocabDailyLog } from './js/vocab-client.js';
 import { UNITS } from './js/units.js?v=2'; // units.js를 고치면 숫자를 올려서 브라우저 캐시를 피한다
@@ -329,7 +335,7 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML = html;
 }
 
-const RECENT_DAYS = 7;
+const RECENT_DAYS = 4;
 const SEC_PER_WORD = 5;
 function diffSec(from, to) {
   if (!from || !to) return 0;
@@ -507,6 +513,7 @@ document.getElementById('unitPager').addEventListener('click', (e) => {
 
 (async function () {
   await requireLogin();
+  mountAvatar(document.getElementById('heroAvatar'));
   const [summary, pointsSummary, history, sessions, vocabLog] = await Promise.all([
     loadAllProgressSummary(), getPointsSummary(), getHistory(), getSessions(), getVocabDailyLog()
   ]);
