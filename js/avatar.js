@@ -147,8 +147,8 @@ const flower = (cx, cy, r, c) =>
   [0, 72, 144, 216, 288].map(a => `<circle cx="${(cx + r * Math.cos(a * Math.PI / 180)).toFixed(1)}" cy="${(cy + r * Math.sin(a * Math.PI / 180)).toFixed(1)}" r="${r * 0.75}" fill="${c}"/>`).join('') +
   `<circle cx="${cx}" cy="${cy}" r="${r * 0.6}" fill="#FFE066"/>`;
 const sleeves = (len, c, w = 16) =>
-  `<rect x="${67 - w / 2}" y="132" width="${w}" height="${len}" rx="7" fill="${c}" transform="rotate(12 67 136)"/>` +
-  `<rect x="${133 - w / 2}" y="132" width="${w}" height="${len}" rx="7" fill="${c}" transform="rotate(-12 133 136)"/>`;
+  `<rect x="${67 - w / 2}" y="133" width="${w}" height="${len}" rx="${w / 2}" fill="${c}"/>` +
+  `<rect x="${133 - w / 2}" y="133" width="${w}" height="${len}" rx="${w / 2}" fill="${c}"/>`;
 const torso = (h, c, extra = '') => `<rect x="72" y="129" width="56" height="${h}" rx="13" fill="${c}" ${extra}/>`;
 const bothFeet = f => f(88) + f(112);
 
@@ -391,7 +391,7 @@ const ACC_BODY = {
   flower: `<path d="M58 178l-4-28" stroke="#3DAA6B" stroke-width="2.5"/>${flower(53, 146, 5, '#FF8FB1')}`,
   icecream: `<path d="M50 166l8 18 8-18z" fill="#E8B06B"/><circle cx="58" cy="162" r="8" fill="#FFC6DA"/><circle cx="58" cy="153" r="6" fill="#B9F0D8"/><circle cx="60" cy="148" r="2" fill="#E2455F"/>`,
   bubbletea: `<path d="M48 158h20l-3 26h-14z" fill="#E9D6C0" opacity=".95"/><path d="M48 158h20" stroke="#fff" stroke-width="2"/><path d="M60 158l6-14" stroke="#FF6F91" stroke-width="2.5"/><circle cx="53" cy="180" r="2" fill="#3A2630"/><circle cx="58" cy="181" r="2" fill="#3A2630"/><circle cx="63" cy="180" r="2" fill="#3A2630"/>`,
-  balloon: `<path d="M58 176q-24-50-42-112" stroke="#9AA0B5" stroke-width="1" fill="none"/>` + heart(12, 50, 14, '#FF5C8A') + `<path d="M6 43q2-5 7-5" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`,
+  balloon: `<path d="M58 176q-34-50-58-120" stroke="#9AA0B5" stroke-width="1" fill="none"/>` + heart(-2, 44, 13, '#FF5C8A') + `<path d="M-8 37q2-5 7-5" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`,
   phone: `<rect x="46" y="156" width="16" height="26" rx="4" fill="#FF9EC0"/><rect x="48.5" y="159" width="11" height="20" rx="2" fill="#2E2E36"/>${heart(54, 168, 3, '#FF6FB0')}<circle cx="49" cy="159" r="1.4" fill="#fff"/>`,
   teddy: `<circle cx="44" cy="186" r="11" fill="#C9925D"/><circle cx="44" cy="170" r="9" fill="#C9925D"/><circle cx="37" cy="163" r="3.5" fill="#C9925D"/><circle cx="51" cy="163" r="3.5" fill="#C9925D"/><ellipse cx="44" cy="173" rx="4" ry="3" fill="#F2D2A9"/><circle cx="41" cy="168" r="1.2" fill="${INK}"/><circle cx="47" cy="168" r="1.2" fill="${INK}"/><circle cx="44" cy="172" r="1" fill="${INK}"/>`,
 };
@@ -415,11 +415,12 @@ const HEAD_T = 'translate(100 118) scale(1.06) translate(-100 -126)';
 const CLOTH_T = 'translate(100 -4) scale(.83 1) translate(-100 0)';
 const BOTTOM_T = 'translate(100 160) scale(.83 1.12) translate(-100 -164)';
 const SHOE_T = 'translate(100 226) scale(.83 1) translate(-100 -219)';
-const HAND_DX = 6.2; // 예전 손 위치(58,177) → 새 손 위치(64,177)
+const HAND_T = dx => `translate(${dx} 2.5)`; // 예전 손 위치(58,177) → 새 손 위치(72.5,179.5)
+const HAND_DX = 14.5;
 const BODY = skin =>
-  // 팔 (어깨에서 10° 벌어져 내려옴)
-  `<g fill="${skin}"><rect x="68" y="128" width="9" height="49" rx="4.5" transform="rotate(10 72.5 130)"/>` +
-  `<rect x="123" y="128" width="9" height="49" rx="4.5" transform="rotate(-10 127.5 130)"/>` +
+  // 팔: 어깨 아래에서 몸 옆으로 곧게 내려오고 끝에 작은 손 (몸통이 나중에 그려져 팔 위쪽을 덮는다)
+  `<g fill="${skin}"><rect x="67" y="129" width="11" height="48" rx="5.5"/><rect x="122" y="129" width="11" height="48" rx="5.5"/>` +
+  `<ellipse cx="72.5" cy="179.5" rx="6" ry="4.8"/><ellipse cx="127.5" cy="179.5" rx="6" ry="4.8"/>` +
   // 다리와 발
   `<rect x="84" y="170" width="13" height="56" rx="6"/><rect x="103" y="170" width="13" height="56" rx="6"/>` +
   `<ellipse cx="90" cy="226" rx="8" ry="4.5"/><ellipse cx="110" cy="226" rx="8" ry="4.5"/>` +
@@ -444,7 +445,7 @@ const soft3d = id => `<filter id="${id}" x="-15%" y="-15%" width="130%" height="
 function bodyAcc(acc) {
   return Object.keys(ACC_BODY).filter(k => acc.has(k)).map(k => {
     const g = itemById(`acc:${k}`)?.group;
-    const t = g === 'L' ? `translate(${HAND_DX} 0)` : g === 'R' ? `translate(${-HAND_DX} 0)` : CLOTH_T;
+    const t = g === 'L' ? HAND_T(HAND_DX) : g === 'R' ? HAND_T(-HAND_DX) : CLOTH_T;
     return `<g transform="${t}">${ACC_BODY[k]}</g>`;
   }).join('');
 }
