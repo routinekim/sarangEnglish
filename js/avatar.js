@@ -35,7 +35,7 @@ export const ITEMS = [
   I('skin', 'light', '하얀 피부', 0), I('skin', 'pale', '뽀얀 피부', 0), I('skin', 'peach', '복숭아 피부', 0),
   I('skin', 'olive', '밀빛 피부', 0), I('skin', 'tan', '구릿빛 피부', 0), I('skin', 'deep', '갈색 피부', 0),
 
-  I('eyes', 'dot', '콩알 눈', 0), I('eyes', 'mini', '깨알 눈', 0), I('eyes', 'happy', '웃는 눈 ^^', 10),
+  I('eyes', 'ring', '동글 링 눈', 0), I('eyes', 'dot', '콩알 눈', 0), I('eyes', 'mini', '깨알 눈', 0), I('eyes', 'happy', '웃는 눈 ^^', 10),
   I('eyes', 'content', '흐뭇한 눈 ˘˘', 10), I('eyes', 'round', '동그란 눈', 10), I('eyes', 'sparkle', '반짝 눈', 15),
   I('eyes', 'sleepy', '졸린 눈', 15), I('eyes', 'squeeze', '질끈 눈 ><', 15), I('eyes', 'shiny', '초롱초롱 눈', 20),
   I('eyes', 'lashes', '속눈썹 눈', 20), I('eyes', 'lashsmile', '속눈썹 웃는 눈', 20), I('eyes', 'wink', '윙크', 20),
@@ -49,7 +49,7 @@ export const ITEMS = [
   I('nose', 'none', '코 없음', 0), I('nose', 'dot', '콩알 코', 0), I('nose', 'tiny', '작은 코', 0), I('nose', 'curve', '오똑 코', 10),
   I('nose', 'button', '단추 코', 10), I('nose', 'cat', '고양이 코', 15), I('nose', 'pig', '돼지 코', 15), I('nose', 'clown', '빨간 코', 20),
 
-  I('mouth', 'smile', '미소', 0), I('mouth', 'tiny', '콕 입', 0), I('mouth', 'flat', '일자 입', 10),
+  I('mouth', 'omega', '오메가 입 ω', 0), I('mouth', 'smile', '미소', 0), I('mouth', 'tiny', '콕 입', 0), I('mouth', 'flat', '일자 입', 10),
   I('mouth', 'mochi', '앙 벌린 입', 10), I('mouth', 'sad', '시무룩 입', 10), I('mouth', 'oh', '놀란 입', 10),
   I('mouth', 'grin', '활짝 웃음', 10), I('mouth', 'wa', '와아 입', 15), I('mouth', 'wavy', '오물오물 입', 15),
   I('mouth', 'pucker', '뽀뽀 입 3', 15), I('mouth', 'cat', '고양이 입 ω', 15), I('mouth', 'teeth', '이 보이는 웃음', 15),
@@ -57,7 +57,7 @@ export const ITEMS = [
   I('mouth', 'drool', '침 흘리는 입', 20), I('mouth', 'fang', '덧니', 20),
   I('mouth', 'lipstick', '빨간 립', 20), I('mouth', 'kiss', '쪽 하트', 20),
 
-  I('cheek', 'blush', '분홍 볼', 0), I('cheek', 'none', '없음', 0), I('cheek', 'bigblush', '발그레 볼', 10),
+  I('cheek', 'hatch', '빗금 볼터치', 0), I('cheek', 'blush', '분홍 볼', 0), I('cheek', 'none', '없음', 0), I('cheek', 'bigblush', '발그레 볼', 10),
   I('cheek', 'freckles', '주근깨', 10), I('cheek', 'heartsticker', '하트 스티커', 15), I('cheek', 'starsticker', '별 스티커', 15),
   I('cheek', 'bandage', '반창고', 15), I('cheek', 'whiskers', '고양이 수염', 20),
 
@@ -118,18 +118,18 @@ export const itemById = id => ITEMS.find(i => i.id === id);
 
 // 처음 캐릭터: 속옷만 입은 기본 모습
 export const DEFAULT_EQUIPPED = {
-  face: 'round', skin: 'light', eyes: 'dot', brows: 'none', nose: 'dot', mouth: 'smile', cheek: 'blush',
-  hair: 'bob', hairColor: 'brown', hat: null, top: null, bottom: null, shoes: null, acc: [], bg: 'pastel', pet: null,
+  face: 'round', skin: 'light', eyes: 'ring', brows: 'none', nose: 'none', mouth: 'omega', cheek: 'hatch',
+  hair: 'bob', hairColor: 'black', hat: null, top: null, bottom: null, shoes: null, acc: [], bg: 'pastel', pet: null,
 };
 
 // ── 그리기 도구 ──
-const SKIN = { light: '#FFE3D3', pale: '#FFEEE6', peach: '#F8CBA6', olive: '#E9C29A', tan: '#DFA77E', deep: '#A8704A' };
+const SKIN = { light: '#F9D7C4', pale: '#FBE1D3', peach: '#F4C6A8', olive: '#E3BC94', tan: '#D9A07A', deep: '#A8704A' };
 const HAIR = {
   black: '#2B2024', brown: '#6B4226', blonde: '#E8C15A', red: '#D9443F', orange: '#F08A3C', pink: '#F58FB5',
   purple: '#9B7BD6', mint: '#5FC9B6', skyblue: '#6EC1F0', silver: '#C9CED8',
 };
 const HAIR_GRAD = { cotton: ['#FF9EC7', '#8FD3FF'], galaxy: ['#7B5BD6', '#1E2A6B'] };
-const FACE = { round: [50, 45], oval: [46, 48], chubby: [54, 44], small: [46, 42], long: [47, 50] }; // [가로, 세로] 반지름
+const FACE = { round: [47, 44], oval: [44, 47], chubby: [51, 43], small: [44, 41], long: [45, 49] }; // [가로, 세로] 반지름
 const INK = '#3A2630';
 let uid = 0; // 그라데이션 id가 화면 안에서 겹치지 않게
 
@@ -197,6 +197,7 @@ const PET = {
 const EY = 94; // 눈 높이. 눈은 x 80, 120
 const irisEye = color => x => `<ellipse cx="${x}" cy="${EY}" rx="5.5" ry="7" fill="${color}"/><ellipse cx="${x}" cy="${EY + 1}" rx="2.8" ry="3.8" fill="${INK}"/><circle cx="${x + 2}" cy="${EY - 3}" r="2" fill="#fff"/><circle cx="${x - 2}" cy="${EY + 3}" r="1" fill="#fff"/>`;
 const EYES = {
+  ring: x => `<circle cx="${x}" cy="${EY}" r="4.6" fill="#fff" stroke="${INK}" stroke-width="2.2"/>`,
   dot: x => `<ellipse cx="${x}" cy="${EY}" rx="4.2" ry="5.2" fill="${INK}"/><circle cx="${x + 1.4}" cy="${EY - 2}" r="1.5" fill="#fff"/>`,
   mini: x => `<ellipse cx="${x}" cy="${EY}" rx="2.6" ry="3.2" fill="${INK}"/>`,
   round: x => `<circle cx="${x}" cy="${EY}" r="6" fill="#fff" stroke="${INK}" stroke-width="1.6"/><circle cx="${x + 1}" cy="${EY + 1}" r="3" fill="${INK}"/>`,
@@ -240,6 +241,7 @@ const NOSE = {
 };
 const ML = `stroke="${INK}" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
 const MOUTH = {
+  omega: `<path d="M92 103.5q4 5.5 8 0q4 5.5 8 0" stroke="${INK}" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   smile: `<path d="M96 106q4 4 8 0" ${ML}/>`,
   tiny: `<ellipse cx="100" cy="107" rx="1.6" ry="1.2" fill="${INK}"/>`,
   flat: `<path d="M97 107h6" ${ML}/>`,
@@ -262,6 +264,7 @@ const MOUTH = {
 };
 const BL = (x, rx = 9, ry = 5.5, op = '.7') => `<ellipse cx="${x}" cy="104" rx="${rx}" ry="${ry}" fill="#FFA3B8" opacity="${op}"/>`;
 const CHEEK = {
+  hatch: () => BL(70, 9, 5, '.5') + BL(130, 9, 5, '.5') + `<path d="M64 106l3-5M68 106l3-5M72 106l3-5M126 106l3-5M130 106l3-5M134 106l3-5" stroke="#EE7F9A" stroke-width="1.1" stroke-linecap="round"/>`,
   none: () => '',
   blush: () => BL(70) + BL(130),
   bigblush: () => BL(70, 12, 7, '.75') + BL(130, 12, 7, '.75') + `<path d="M64 101l3 5M69 101l3 5M74 101l3 5M126 101l3 5M131 101l3 5M136 101l3 5" stroke="#F0708F" stroke-width="1.2" stroke-linecap="round"/>`,
@@ -308,7 +311,7 @@ function hairLayers(style, fill) {
       back = dots([[56, 70], [52, 92], [54, 112], [146, 70], [148, 92], [146, 112], [64, 48], [136, 48], [80, 36], [100, 32], [120, 36], [58, 128], [142, 128]], 16);
       front = dots([[68, 54], [84, 46], [100, 44], [116, 46], [132, 54]], 13); bangs = null; break;
   }
-  const fr = bangs ? `<path d="${bangs}"/><path d="M70 44q16-8 30-8" stroke="#fff" stroke-width="3" fill="none" opacity=".3" stroke-linecap="round"/>` : '';
+  const fr = bangs ? `<path d="${bangs}"/>` : '';
   return { back: `<g fill="${fill}">${back}</g>`, front: `<g fill="${fill}">${pre}${fr}${front}</g>` };
 }
 
@@ -388,7 +391,7 @@ const ACC_BODY = {
   flower: `<path d="M58 178l-4-28" stroke="#3DAA6B" stroke-width="2.5"/>${flower(53, 146, 5, '#FF8FB1')}`,
   icecream: `<path d="M50 166l8 18 8-18z" fill="#E8B06B"/><circle cx="58" cy="162" r="8" fill="#FFC6DA"/><circle cx="58" cy="153" r="6" fill="#B9F0D8"/><circle cx="60" cy="148" r="2" fill="#E2455F"/>`,
   bubbletea: `<path d="M48 158h20l-3 26h-14z" fill="#E9D6C0" opacity=".95"/><path d="M48 158h20" stroke="#fff" stroke-width="2"/><path d="M60 158l6-14" stroke="#FF6F91" stroke-width="2.5"/><circle cx="53" cy="180" r="2" fill="#3A2630"/><circle cx="58" cy="181" r="2" fill="#3A2630"/><circle cx="63" cy="180" r="2" fill="#3A2630"/>`,
-  balloon: `<path d="M58 176q-8-40-16-74" stroke="#9AA0B5" stroke-width="1"/>` + heart(40, 92, 16, '#FF5C8A') + `<path d="M34 84q2-6 8-6" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`,
+  balloon: `<path d="M58 176q-24-50-42-112" stroke="#9AA0B5" stroke-width="1" fill="none"/>` + heart(12, 50, 14, '#FF5C8A') + `<path d="M6 43q2-5 7-5" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`,
   phone: `<rect x="46" y="156" width="16" height="26" rx="4" fill="#FF9EC0"/><rect x="48.5" y="159" width="11" height="20" rx="2" fill="#2E2E36"/>${heart(54, 168, 3, '#FF6FB0')}<circle cx="49" cy="159" r="1.4" fill="#fff"/>`,
   teddy: `<circle cx="44" cy="186" r="11" fill="#C9925D"/><circle cx="44" cy="170" r="9" fill="#C9925D"/><circle cx="37" cy="163" r="3.5" fill="#C9925D"/><circle cx="51" cy="163" r="3.5" fill="#C9925D"/><ellipse cx="44" cy="173" rx="4" ry="3" fill="#F2D2A9"/><circle cx="41" cy="168" r="1.2" fill="${INK}"/><circle cx="47" cy="168" r="1.2" fill="${INK}"/><circle cx="44" cy="172" r="1" fill="${INK}"/>`,
 };
@@ -404,58 +407,98 @@ const ACC_FACE = {
   sunglasses: heart(80, 94, 11, '#FF5C8A', 'opacity=".9"') + heart(120, 94, 11, '#FF5C8A', 'opacity=".9"') + `<path d="M90 91q10-4 20 0" stroke="${INK}" stroke-width="2" fill="none"/><path d="M75 88q3-2 6 0M115 88q3-2 6 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".8"/>`,
 };
 
+// ── 체형 (참고 사진의 2등신 아바타 비율) ──
+// 큰 머리 → 짧은 목 → 살짝 처진 어깨의 일자 몸통 → 옆으로 자연스럽게 내린 가는 팔 → 곧은 다리와 작은 발.
+// 머리: 원래 좌표(턱 y126)를 키워서 턱이 목 위(y118)에 오게 한다.
+const HEAD_T = 'translate(100 118) scale(1.06) translate(-100 -126)';
+// 옷은 예전 몸(어깨 폭 56)에 맞춰 그렸기 때문에 새 몸(어깨 폭 46)에 맞게 옮겨 입힌다.
+const CLOTH_T = 'translate(100 -4) scale(.83 1) translate(-100 0)';
+const BOTTOM_T = 'translate(100 160) scale(.83 1.12) translate(-100 -164)';
+const SHOE_T = 'translate(100 226) scale(.83 1) translate(-100 -219)';
+const HAND_DX = 6.2; // 예전 손 위치(58,177) → 새 손 위치(64,177)
+const BODY = skin =>
+  // 팔 (어깨에서 10° 벌어져 내려옴)
+  `<g fill="${skin}"><rect x="68" y="128" width="9" height="49" rx="4.5" transform="rotate(10 72.5 130)"/>` +
+  `<rect x="123" y="128" width="9" height="49" rx="4.5" transform="rotate(-10 127.5 130)"/>` +
+  // 다리와 발
+  `<rect x="84" y="170" width="13" height="56" rx="6"/><rect x="103" y="170" width="13" height="56" rx="6"/>` +
+  `<ellipse cx="90" cy="226" rx="8" ry="4.5"/><ellipse cx="110" cy="226" rx="8" ry="4.5"/>` +
+  // 목과 몸통 (살짝 처진 어깨)
+  `<rect x="95" y="110" width="10" height="20" rx="3"/>` +
+  `<path d="M85 124Q100 121 115 124Q123 126 123 135L120 180H80L77 135Q77 126 85 124Z"/></g>`;
+const UNDERWEAR =
+  `<path d="M84 128h4v6h24v-6h4l3 8 1 32H80l1-32z" fill="#fff"/>` +
+  `<path d="M80 164h40l1 22h-17l-4-6-4 6H79z" fill="#FFC6D8"/>`;
+
+const outline = (w, inner) => `<g stroke="#3A2630" stroke-opacity=".22" stroke-width="${w}" stroke-linejoin="round">${inner}</g>`;
+// 모양의 가장자리를 따라 빛과 그림자를 넣어 둥글고 말랑해 보이게 하는 필터
+const soft3d = id => `<filter id="${id}" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">` +
+  `<feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>` +
+  `<feDiffuseLighting in="b" surfaceScale="3" diffuseConstant="1" lighting-color="#fff" result="d"><feDistantLight azimuth="225" elevation="52"/></feDiffuseLighting>` +
+  `<feSpecularLighting in="b" surfaceScale="3" specularConstant=".3" specularExponent="28" lighting-color="#fff" result="s"><feDistantLight azimuth="225" elevation="52"/></feSpecularLighting>` +
+  `<feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1=".5" k2=".58" result="lit"/>` +
+  `<feComposite in="s" in2="SourceAlpha" operator="in" result="si"/>` +
+  `<feComposite in="lit" in2="si" operator="arithmetic" k2="1" k3=".16" result="o"/>` +
+  `<feComposite in="o" in2="SourceAlpha" operator="in"/></filter>`;
+// 몸에 두르는 액세서리는 옷과 같이 맞추고, 손에 든 물건은 새 손 위치로 옮긴다
+function bodyAcc(acc) {
+  return Object.keys(ACC_BODY).filter(k => acc.has(k)).map(k => {
+    const g = itemById(`acc:${k}`)?.group;
+    const t = g === 'L' ? `translate(${HAND_DX} 0)` : g === 'R' ? `translate(${-HAND_DX} 0)` : CLOTH_T;
+    return `<g transform="${t}">${ACC_BODY[k]}</g>`;
+  }).join('');
+}
+
 // 착용 정보 → SVG 문자열. view: 'full'(전신) | 'head'(얼굴 확대)
-// 얼굴·몸·옷·머리·동물에 부드러운 갈색 테두리를 둘러 말랑한 그림체로 만든다.
-const LINE = '#5B4048';
-const BIG_HEAD = 'translate(100 128) scale(1.12) translate(-100 -128)'; // 2등신 느낌으로 머리를 키운다
-const outline = (w, inner) => `<g stroke="${LINE}" stroke-width="${w}" stroke-linejoin="round">${inner}</g>`;
 export function renderAvatar(eqIn, { view = 'full', className = '' } = {}) {
   const eq = { ...DEFAULT_EQUIPPED, ...eqIn };
   const skin = SKIN[eq.skin] || SKIN.light;
   const [rx, ry] = FACE[eq.face] || FACE.round;
   const headT = `translate(100 82) scale(${(rx / 44).toFixed(3)} ${(ry / 44).toFixed(3)}) translate(-100 -82)`;
-  let defs = '', hairFill = HAIR[eq.hairColor] || HAIR.brown, browC = hairFill;
+  const n = ++uid, F = `s3d${n}`, sh = `filter="url(#${F})"`;
+  let defs = soft3d(F), hairFill = HAIR[eq.hairColor] || HAIR.black, browC = hairFill;
   if (HAIR_GRAD[eq.hairColor]) {
-    const [a, b] = HAIR_GRAD[eq.hairColor], id = `hg${++uid}`;
-    defs = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
-    hairFill = `url(#${id})`; browC = a;
+    const [a, b] = HAIR_GRAD[eq.hairColor];
+    defs += `<linearGradient id="hg${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+    hairFill = `url(#hg${n})`; browC = a;
   }
   const hair = hairLayers(eq.hair, hairFill);
   const acc = new Set(eq.acc || []);
   const pick = map => Object.keys(map).filter(k => acc.has(k)).map(k => map[k]).join('');
   const full = FULL_BODY.has(eq.top);
+  // 머리카락 윤기: 정수리 쪽 둥근 띠
+  const shine = eq.hair === 'curly' ? '' : `<path d="M66 46Q100 26 134 46" stroke="#fff" stroke-opacity=".38" stroke-width="5" fill="none" stroke-linecap="round"/>`;
 
   const svg = [
-    defs,
+    `<defs>${defs}</defs>`,
     BG[eq.bg] || BG.pastel,
-    pick(ACC_BACK),
-    `<g transform="${BIG_HEAD}"><g transform="${headT}">${outline(1.8, hair.back)}</g></g>`,
-    // 몸 (짤막하고 통통하게)
-    outline(1.8, `<g fill="${skin}"><rect x="81" y="172" width="15" height="48" rx="7.5"/><rect x="104" y="172" width="15" height="48" rx="7.5"/>` +
-      `<rect x="60" y="134" width="14" height="42" rx="7" transform="rotate(12 67 136)"/><rect x="126" y="134" width="14" height="42" rx="7" transform="rotate(-12 133 136)"/>` +
-      `<rect x="72" y="128" width="56" height="52" rx="18"/>` +
-      `<ellipse cx="88" cy="219" rx="9" ry="5"/><ellipse cx="112" cy="219" rx="9" ry="5"/></g>`),
-    // 속옷 (기본)
-    outline(1.4, `<rect x="82" y="129" width="5" height="10" rx="2" fill="#fff"/><rect x="113" y="129" width="5" height="10" rx="2" fill="#fff"/>` +
-      `<rect x="75" y="136" width="50" height="32" rx="10" fill="#fff"/>` +
-      `<rect x="75" y="165" width="50" height="21" rx="9" fill="#FFC6D8"/>`) + `<circle cx="100" cy="169" r="2.2" fill="#FF6F91"/>`,
-    outline(1.4, (!full && eq.bottom ? BOTTOM[eq.bottom] || '' : '') + (eq.top && TOP[eq.top] ? TOP[eq.top]() : '') + (eq.shoes ? SHOES[eq.shoes] || '' : '')),
-    outline(1.2, pick(ACC_BODY)),
-    // 얼굴: 옆으로 넓은 찹쌀떡 모양
-    `<g transform="${BIG_HEAD}">`,
-    outline(2, `<g fill="${skin}"><ellipse cx="${100 - rx + 3}" cy="92" rx="6" ry="8"/><ellipse cx="${100 + rx - 3}" cy="92" rx="6" ry="8"/><ellipse cx="100" cy="82" rx="${rx}" ry="${ry}"/></g>`),
-    acc.has('earrings') ? heart(100 - rx + 3, 103, 3.5, '#FF6F91') + heart(100 + rx - 3, 103, 3.5, '#FF6F91') : '',
-    (CHEEK[eq.cheek] || CHEEK.blush)(),
+    `<ellipse cx="100" cy="230" rx="30" ry="5" fill="#000" opacity=".13"/>`, // 바닥 그림자
+    `<g ${sh}>${pick(ACC_BACK)}</g>`,
+    `<g transform="${HEAD_T}"><g transform="${headT}"><g ${sh}>${outline(1.2, hair.back)}</g></g></g>`,
+    // 몸 + 속옷 + 옷 + 신발 (한 덩어리로 입체감)
+    `<g ${sh}>` +
+      outline(1.1, BODY(skin)) +
+      outline(1, UNDERWEAR) + `<circle cx="100" cy="168" r="2" fill="#FF6F91"/>` +
+      (!full && eq.bottom ? `<g transform="${BOTTOM_T}">${outline(1, BOTTOM[eq.bottom] || '')}</g>` : '') +
+      (eq.top && TOP[eq.top] ? `<g transform="${CLOTH_T}">${outline(1, TOP[eq.top]())}</g>` : '') +
+      (eq.shoes ? `<g transform="${SHOE_T}">${outline(1, SHOES[eq.shoes] || '')}</g>` : '') +
+    `</g>`,
+    `<g ${sh}>${outline(1, bodyAcc(acc))}</g>`,
+    // 얼굴: 크고 동그란 얼굴 + 옆으로 나온 귀
+    `<g transform="${HEAD_T}">`,
+    `<g ${sh}>${outline(1.2, `<g fill="${skin}"><ellipse cx="${100 - rx - 1}" cy="92" rx="8" ry="10"/><ellipse cx="${100 + rx + 1}" cy="92" rx="8" ry="10"/><ellipse cx="100" cy="82" rx="${rx}" ry="${ry}"/></g>`)}</g>`,
+    acc.has('earrings') ? heart(100 - rx - 1, 106, 3.5, '#FF6F91') + heart(100 + rx + 1, 106, 3.5, '#FF6F91') : '',
+    (CHEEK[eq.cheek] || CHEEK.hatch)(),
     eyesSvg(eq.eyes),
     (BROWS[eq.brows] || BROWS.none)(browC),
-    NOSE[eq.nose] ?? NOSE.dot,
-    MOUTH[eq.mouth] || MOUTH.smile,
-    `<g transform="${headT}">${outline(1.6, hair.front + (eq.hat ? HAT[eq.hat] || '' : '') + pick(ACC_HEAD))}</g>`,
+    NOSE[eq.nose] ?? '',
+    MOUTH[eq.mouth] || MOUTH.omega,
+    `<g transform="${headT}"><g ${sh}>${outline(1.2, hair.front)}</g>${shine}<g ${sh}>${outline(1, (eq.hat ? HAT[eq.hat] || '' : '') + pick(ACC_HEAD))}</g></g>`,
     pick(ACC_FACE),
     '</g>',
-    eq.pet ? outline(1.3, PET[eq.pet] || '') : '',
+    eq.pet ? `<g ${sh}>${outline(1, PET[eq.pet] || '')}</g>` : '',
   ].join('');
-  const vb = view === 'head' ? '20 -14 160 160' : '0 0 200 240';
+  const vb = view === 'head' ? '20 -14 160 150' : '0 0 200 240';
   return `<svg class="${className}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="내 캐릭터">${svg}</svg>`;
 }
 
